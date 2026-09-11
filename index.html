@@ -24,14 +24,13 @@
                 </div>
                 <div class="form-group">
                     <label>E-mail</label>
-                    <input type="email" id="login-email" placeholder="jogador@habitquest.com" required>
+                    <input type="email" id="login-email" placeholder="exemplo@gmail.com" required>
                 </div>
                 <div class="form-group">
                     <label>Senha</label>
                     <input type="password" id="login-pass" placeholder="digite sua senha" required>
                 </div>
-                <a href="#" class="forgot-pass">Esqueci minha senha</a>
-                <button type="submit" class="btn btn-primary btn-block">Entrar no Dashboard <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Entrar no Dashboard <i class="fa-solid fa-arrow-right"></i></button>
             </form>
         </div>
     </section>
@@ -45,9 +44,9 @@
             </div>
             <nav class="nav-links">
                 <button class="nav-btn active" data-screen="screen-home" onclick="navigateTo('screen-home')"><i class="fa-solid fa-house"></i> Hábitos</button>
-                <button class="nav-btn" data-screen="screen-stats" onclick="navigateTo('screen-stats')"><i class="fa-solid fa-chart-line"></i> Progresso</button>
+                <button class="nav-btn" data-screen="screen-ranking" onclick="navigateTo('screen-ranking')"><i class="fa-solid fa-trophy"></i> Ranking</button>
                 <button class="nav-btn" data-screen="screen-battle" onclick="navigateTo('screen-battle')"><i class="fa-solid fa-gamepad"></i> Batalha</button>
-                <button class="nav-btn" data-screen="screen-inventory" onclick="navigateTo('screen-inventory')"><i class="fa-solid fa-shield"></i> Habilidades</button>
+                <button class="nav-btn" onclick="openTutorial()"><i class="fa-solid fa-circle-question"></i> Como Jogar</button>
             </nav>
             <div class="header-user">
                 <button class="btn btn-primary btn-sm" onclick="navigateTo('screen-create-habit')"><i class="fa-solid fa-plus"></i> Novo Hábito</button>
@@ -62,7 +61,7 @@
     <!-- CONTEÚDO PRINCIPAL -->
     <main class="main-content" id="main-content">
 
-        <!-- TELA: HOME / HÁBITOS -->
+        <!-- TELA: HÁBITOS -->
         <section id="screen-home" class="page-section active">
             <div class="summary-grid">
                 <div class="card summary-card">
@@ -71,119 +70,60 @@
                 </div>
                 <div class="card summary-card">
                     <div class="summary-icon points"><i class="fa-solid fa-star"></i></div>
-                    <div class="summary-info"><span class="card-subtitle">Pontuação</span><h3 id="user-points-display">2.750 pts</h3></div>
+                    <div class="summary-info"><span class="card-subtitle">Pontuação Geral</span><h3 id="user-points-display">2.750 pts</h3></div>
                 </div>
                 <div class="card summary-card">
-                    <div class="card-header-flex"><span class="card-subtitle">Energia do Dia</span><span id="energy-text" class="card-value">0%</span></div>
+                    <div class="card-header-flex"><span class="card-subtitle">Energia Diária p/ Batalhas</span><span id="energy-text" class="card-value">0%</span></div>
                     <div class="progress-bar-bg"><div id="energy-bar" class="progress-bar-fill energy-fill" style="width: 0%;"></div></div>
                 </div>
             </div>
 
             <div class="section-header">
-                <h2>Seus Hábitos do Dia</h2>
+                <h2>Seus Hábitos Diários</h2>
             </div>
 
             <div class="habits-grid" id="habits-container">
-                <div class="habit-card">
-                    <div class="habit-top">
-                        <div class="habit-info"><span class="habit-icon">💧</span><div><h4>Beber água</h4><p class="habit-desc">2 Litros por dia</p></div></div>
-                        <button class="btn-toggle-habit done" onclick="toggleHabitStatus(this)"><i class="fa-solid fa-check"></i> <span>Concluído</span></button>
-                    </div>
-                    <div class="habit-history">
-                        <span>Dias da semana:</span>
-                        <div class="days-row">
-                            <span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="habit-card">
-                    <div class="habit-top">
-                        <div class="habit-info"><span class="habit-icon">🏃</span><div><h4>Correr 2km</h4><p class="habit-desc">Exercício matinal</p></div></div>
-                        <button class="btn-toggle-habit" onclick="toggleHabitStatus(this)"><span>Concluir</span></button>
-                    </div>
-                    <div class="habit-history">
-                        <span>Dias da semana:</span>
-                        <div class="days-row">
-                            <span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span>
-                        </div>
-                    </div>
-                </div>
+                <!-- Renderizado via Javascript -->
             </div>
         </section>
 
-        <!-- TELA: ESTATÍSTICAS -->
-        <section id="screen-stats" class="page-section">
-            <div class="section-header"><h2>Seu Progresso & Estatísticas</h2></div>
-            <div class="stats-layout">
-                <div class="card chart-card">
-                    <h3>Atividade Semanal</h3>
-                    <div class="chart-container">
-                        <div class="chart-bar" style="--h: 50%;"></div>
-                        <div class="chart-bar" style="--h: 75%;"></div>
-                        <div class="chart-bar" style="--h: 60%;"></div>
-                        <div class="chart-bar" style="--h: 90%;"></div>
-                        <div class="chart-bar" style="--h: 80%;"></div>
-                        <div class="chart-bar" style="--h: 100%;"></div>
-                        <div class="chart-bar" style="--h: 40%;"></div>
+        <!-- TELA: RANKING & DIVISÃO -->
+        <section id="screen-ranking" class="page-section">
+            <div class="ranking-container">
+                <div class="league-card">
+                    <div>
+                        <span class="card-subtitle" style="color: #94a3b8;">Sua Divisão Atual</span>
+                        <h2 id="league-name" style="color: #f1c40f;">Liga Bronze 🛡️</h2>
+                        <p style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">XP da Divisão: <strong id="division-xp-text">0 / 300 XP</strong></p>
                     </div>
+                    <div class="league-badge" id="league-icon">🛡️</div>
                 </div>
-                <div class="stats-sidebar">
-                    <div class="card">
-                        <div class="card-header-flex"><span class="card-subtitle">Nível do Personagem</span><strong>Nível 3</strong></div>
-                        <div class="progress-bar-bg" style="margin-top: 10px;"><div class="progress-bar-fill level-fill" style="width: 65%;"></div></div>
-                    </div>
-                </div>
-            </div>
-            <div class="section-header"><h2>Conquistas</h2></div>
-            <div class="badges-grid">
-                <div class="badge-card"><div class="badge-icon">🏃</div><h4>Maratonista</h4></div>
-                <div class="badge-card"><div class="badge-icon">💧</div><h4>Hidratado</h4></div>
-                <div class="badge-card"><div class="badge-icon">📚</div><h4>Estudioso</h4></div>
-            </div>
-        </section>
 
-        <!-- TELA: PERFIL -->
-        <section id="screen-profile" class="page-section">
-            <div class="profile-box">
-                <div class="card profile-header-card">
-                    <div class="profile-avatar-large"><i class="fa-solid fa-user"></i></div>
-                    <h2 id="profile-user-name">Jogador</h2>
-                    <p>Aventureiro Nível 3</p>
+                <div class="card">
+                    <h3>🏆 Classificação da Semana</h3>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Conclua hábitos (+20 XP) e vença batalhas diárias (+100 XP) para subir no ranking!</p>
+                    
+                    <table class="ranking-table">
+                        <thead>
+                            <tr>
+                                <th>Posição</th>
+                                <th>Jogador</th>
+                                <th>Divisão</th>
+                                <th>XP</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ranking-tbody">
+                            <!-- Preenchido via Javascript -->
+                        </tbody>
+                    </table>
                 </div>
-                <div class="card setting-item"><i class="fa-solid fa-key"></i><div><strong>Conta & Segurança</strong><p>Alterar senha</p></div></div>
-                <div class="card setting-item"><i class="fa-solid fa-bell"></i><div><strong>Notificações</strong><p>Alertas diários</p></div></div>
-                <button class="btn btn-danger btn-block" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
-            </div>
-        </section>
-
-        <!-- TELA: CRIAR HÁBITO -->
-        <section id="screen-create-habit" class="page-section">
-            <div class="form-card card">
-                <h2>Criar Novo Hábito</h2>
-                <form id="create-habit-form">
-                    <div class="form-group"><label>Título do Hábito</label><input type="text" id="habit-title" required></div>
-                    <div class="form-group"><label>Descrição / Meta</label><input type="text" id="habit-desc"></div>
-                    <div class="form-group">
-                        <label>Símbolo</label>
-                        <div class="symbol-selector">
-                            <button type="button" class="symbol-btn active" data-symbol="💧">💧</button>
-                            <button type="button" class="symbol-btn" data-symbol="❤️">❤️</button>
-                            <button type="button" class="symbol-btn" data-symbol="📚">📚</button>
-                            <button type="button" class="symbol-btn" data-symbol="🧘">🧘</button>
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-home')">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar Hábito</button>
-                    </div>
-                </form>
             </div>
         </section>
 
         <!-- TELA: BATALHA (CARD GAME) -->
         <section id="screen-battle" class="page-section">
             <div class="battle-arena">
-                <div class="character-zone enemy-zone" id="enemy-character">
+                <div class="character-zone enemy-zone">
                     <h3>Cavaleiro Corrompido</h3>
                     <div class="hp-container">
                         <div class="hp-bar-bg"><div class="hp-bar-fill enemy-hp-fill" id="enemy-hp-bar" style="width: 100%;"></div></div>
@@ -210,29 +150,123 @@
 
                 <div class="cards-hand" id="cards-hand">
                     <div class="battle-card playable" onclick="playCard('ataque')">
-                        <div class="card-cost">1⚡</div><i class="fa-solid fa-khanda card-art"></i><h4>Golpe Rápido</h4><p>Causa 20 de dano</p>
+                        <div class="card-cost">1⚡</div><i class="fa-solid fa-khanda card-art"></i><h4>Golpe Rápido</h4><p>Causa 20 dano</p>
                     </div>
                     <div class="battle-card playable" onclick="playCard('defesa')">
-                        <div class="card-cost">1⚡</div><i class="fa-solid fa-shield-halved card-art"></i><h4>Bloqueio</h4><p>Ganha 15 de escudo</p>
+                        <div class="card-cost">1⚡</div><i class="fa-solid fa-shield-halved card-art"></i><h4>Bloqueio</h4><p>+15 Escudo</p>
                     </div>
                     <div class="battle-card playable magic" onclick="playCard('magia')">
-                        <div class="card-cost">2⚡</div><i class="fa-solid fa-fire-flame-curved card-art"></i><h4>Bola de Fogo</h4><p>Causa 45 de dano</p>
+                        <div class="card-cost">2⚡</div><i class="fa-solid fa-fire-flame-curved card-art"></i><h4>Bola de Fogo</h4><p>Causa 45 dano</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- TELA: INVENTÁRIO -->
-        <section id="screen-inventory" class="page-section">
-            <div class="section-header"><h2>Suas Habilidades</h2></div>
-            <div class="inventory-grid">
-                <div class="inventory-card"><i class="fa-solid fa-bolt skill-icon"></i><h4>Golpe Rápido</h4></div>
-                <div class="inventory-card"><i class="fa-solid fa-shield-halved skill-icon"></i><h4>Escudo Defensivo</h4></div>
-                <div class="inventory-card"><i class="fa-solid fa-fire-flame-curved skill-icon"></i><h4>Bola de Fogo</h4></div>
-                <div class="inventory-card locked"><i class="fa-solid fa-lock"></i><span>Bloqueado</span></div>
+        <!-- TELA: PERFIL & CONFIGURAÇÕES -->
+        <section id="screen-profile" class="page-section">
+            <div class="profile-box card" style="max-width: 480px; margin: 0 auto;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <div class="avatar" style="width: 70px; height: 70px; font-size: 32px; margin: 0 auto 10px;"><i class="fa-solid fa-user"></i></div>
+                    <h2 id="profile-user-name">Jogador</h2>
+                    <p style="color: var(--text-muted); font-size: 13px;">Aventureiro do HabitQuest</p>
+                </div>
+
+                <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 16px;">
+                    <button class="btn btn-secondary btn-block" onclick="openPasswordModal()"><i class="fa-solid fa-key"></i> Alterar Senha</button>
+                </div>
+
+                <div class="switch-container" style="border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 20px;">
+                    <div>
+                        <strong>Notificações Diárias</strong>
+                        <p style="font-size: 11px; color: var(--text-muted);">Lembretes de hábitos</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="notification-toggle" onchange="toggleNotifications(this)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <button class="btn btn-danger btn-block" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
+            </div>
+        </section>
+
+        <!-- TELA: CRIAR HÁBITO -->
+        <section id="screen-create-habit" class="page-section">
+            <div class="card" style="max-width: 480px; margin: 0 auto;">
+                <h2>Criar Novo Hábito</h2>
+                <form id="create-habit-form" style="margin-top: 16px;">
+                    <div class="form-group"><label>Título do Hábito</label><input type="text" id="habit-title" placeholder="Ex: Ler 10 páginas" required></div>
+                    <div class="form-group"><label>Meta / Descrição</label><input type="text" id="habit-desc" placeholder="Ex: Diariamente"></div>
+                    <div class="form-group">
+                        <label>Símbolo</label>
+                        <div class="symbol-selector">
+                            <button type="button" class="symbol-btn active" data-symbol="💧">💧</button>
+                            <button type="button" class="symbol-btn" data-symbol="🏃">🏃</button>
+                            <button type="button" class="symbol-btn" data-symbol="📚">📚</button>
+                            <button type="button" class="symbol-btn" data-symbol="🧘">🧘</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+                        <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-home')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Hábito</button>
+                    </div>
+                </form>
             </div>
         </section>
     </main>
+
+    <!-- MODAL DE EDITAR HÁBITO -->
+    <div class="modal-overlay" id="edit-habit-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Editar Hábito</h3>
+                <button class="btn-close" onclick="closeEditModal()">&times;</button>
+            </div>
+            <form id="edit-habit-form">
+                <input type="hidden" id="edit-habit-id">
+                <div class="form-group"><label>Título</label><input type="text" id="edit-habit-title" required></div>
+                <div class="form-group"><label>Descrição / Meta</label><input type="text" id="edit-habit-desc"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE ALTERAR SENHA -->
+    <div class="modal-overlay" id="password-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Alterar Senha</h3>
+                <button class="btn-close" onclick="closePasswordModal()">&times;</button>
+            </div>
+            <form id="password-form">
+                <div class="form-group"><label>Senha Atual</label><input type="password" id="current-pass" required></div>
+                <div class="form-group"><label>Nova Senha</label><input type="password" id="new-pass" required></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px;">
+                    <button type="button" class="btn btn-secondary" onclick="closePasswordModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Atualizar Senha</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE TUTORIAL -->
+    <div class="modal-overlay" id="tutorial-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📖 Como Funciona o HabitQuest?</h3>
+                <button class="btn-close" onclick="closeTutorial()">&times;</button>
+            </div>
+            <div style="font-size: 13px; display: flex; flex-direction: column; gap: 12px; color: var(--text-main);">
+                <p><strong>1. Cumpra seus Hábitos:</strong> Cada hábito concluído gera pontos e recarrega sua ⚡ <strong>Energia Diária</strong>.</p>
+                <p><strong>2. Cartas de Batalha:</strong> A energia acumulada dos seus hábitos é usada na arena para jogar cartas de ataque, defesa e magia contra os monstros!</p>
+                <p><strong>3. Ranking e Divisão:</strong> Concluir hábitos concede <strong>+20 XP de Divisão</strong>. Vencer a batalha diária concede <strong>+100 XP bônus</strong>! Suba de Bronze para Prata e Ouro.</p>
+            </div>
+            <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="closeTutorial()">Entendi, vamos jogar!</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
