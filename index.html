@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitQuest - Dashboard Gamificado</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- TELA DE LOGIN -->
+    <section id="screen-login" class="screen-full active">
+        <div class="login-card">
+            <div class="login-header">
+                <i class="fa-solid fa-shield-halved logo-icon"></i>
+                <h1>HabitQuest</h1>
+                <p>Gamifique seus hábitos e evolua diariamente</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Seu Nome (Personagem)</label>
+                    <input type="text" id="login-name" placeholder="Como quer ser chamado?" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="login-email" placeholder="jogador@habitquest.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="login-pass" placeholder="digite sua senha" required>
+                </div>
+                <a href="#" class="forgot-pass">Esqueci minha senha</a>
+                <button type="submit" class="btn btn-primary btn-block">Entrar no Dashboard <i class="fa-solid fa-arrow-right"></i></button>
+            </form>
+        </div>
+    </section>
+
+    <!-- CABEÇALHO DO DASHBOARD -->
+    <header class="main-header" id="main-header">
+        <div class="header-container">
+            <div class="brand" onclick="navigateTo('screen-home')">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>HabitQuest</span>
+            </div>
+            <nav class="nav-links">
+                <button class="nav-btn active" data-screen="screen-home" onclick="navigateTo('screen-home')"><i class="fa-solid fa-house"></i> Hábitos</button>
+                <button class="nav-btn" data-screen="screen-stats" onclick="navigateTo('screen-stats')"><i class="fa-solid fa-chart-line"></i> Progresso</button>
+                <button class="nav-btn" data-screen="screen-battle" onclick="navigateTo('screen-battle')"><i class="fa-solid fa-gamepad"></i> Batalha</button>
+                <button class="nav-btn" data-screen="screen-inventory" onclick="navigateTo('screen-inventory')"><i class="fa-solid fa-shield"></i> Habilidades</button>
+            </nav>
+            <div class="header-user">
+                <button class="btn btn-primary btn-sm" onclick="navigateTo('screen-create-habit')"><i class="fa-solid fa-plus"></i> Novo Hábito</button>
+                <div class="user-profile" onclick="navigateTo('screen-profile')">
+                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <span class="user-name" id="header-user-name">Jogador</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content" id="main-content">
+
+        <!-- TELA: HOME / HÁBITOS -->
+        <section id="screen-home" class="page-section active">
+            <div class="summary-grid">
+                <div class="card summary-card">
+                    <div class="summary-icon streak"><i class="fa-solid fa-fire"></i></div>
+                    <div class="summary-info"><span class="card-subtitle">Sequência</span><h3>8 Dias</h3></div>
+                </div>
+                <div class="card summary-card">
+                    <div class="summary-icon points"><i class="fa-solid fa-star"></i></div>
+                    <div class="summary-info"><span class="card-subtitle">Pontuação</span><h3 id="user-points-display">2.750 pts</h3></div>
+                </div>
+                <div class="card summary-card">
+                    <div class="card-header-flex"><span class="card-subtitle">Energia do Dia</span><span id="energy-text" class="card-value">0%</span></div>
+                    <div class="progress-bar-bg"><div id="energy-bar" class="progress-bar-fill energy-fill" style="width: 0%;"></div></div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>Seus Hábitos do Dia</h2>
+            </div>
+
+            <div class="habits-grid" id="habits-container">
+                <div class="habit-card">
+                    <div class="habit-top">
+                        <div class="habit-info"><span class="habit-icon">💧</span><div><h4>Beber água</h4><p class="habit-desc">2 Litros por dia</p></div></div>
+                        <button class="btn-toggle-habit done" onclick="toggleHabitStatus(this)"><i class="fa-solid fa-check"></i> <span>Concluído</span></button>
+                    </div>
+                    <div class="habit-history">
+                        <span>Dias da semana:</span>
+                        <div class="days-row">
+                            <span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="habit-card">
+                    <div class="habit-top">
+                        <div class="habit-info"><span class="habit-icon">🏃</span><div><h4>Correr 2km</h4><p class="habit-desc">Exercício matinal</p></div></div>
+                        <button class="btn-toggle-habit" onclick="toggleHabitStatus(this)"><span>Concluir</span></button>
+                    </div>
+                    <div class="habit-history">
+                        <span>Dias da semana:</span>
+                        <div class="days-row">
+                            <span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day checked" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span><span class="day" onclick="toggleDayCircle(this)"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TELA: ESTATÍSTICAS -->
+        <section id="screen-stats" class="page-section">
+            <div class="section-header"><h2>Seu Progresso & Estatísticas</h2></div>
+            <div class="stats-layout">
+                <div class="card chart-card">
+                    <h3>Atividade Semanal</h3>
+                    <div class="chart-container">
+                        <div class="chart-bar" style="--h: 50%;"></div>
+                        <div class="chart-bar" style="--h: 75%;"></div>
+                        <div class="chart-bar" style="--h: 60%;"></div>
+                        <div class="chart-bar" style="--h: 90%;"></div>
+                        <div class="chart-bar" style="--h: 80%;"></div>
+                        <div class="chart-bar" style="--h: 100%;"></div>
+                        <div class="chart-bar" style="--h: 40%;"></div>
+                    </div>
+                </div>
+                <div class="stats-sidebar">
+                    <div class="card">
+                        <div class="card-header-flex"><span class="card-subtitle">Nível do Personagem</span><strong>Nível 3</strong></div>
+                        <div class="progress-bar-bg" style="margin-top: 10px;"><div class="progress-bar-fill level-fill" style="width: 65%;"></div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="section-header"><h2>Conquistas</h2></div>
+            <div class="badges-grid">
+                <div class="badge-card"><div class="badge-icon">🏃</div><h4>Maratonista</h4></div>
+                <div class="badge-card"><div class="badge-icon">💧</div><h4>Hidratado</h4></div>
+                <div class="badge-card"><div class="badge-icon">📚</div><h4>Estudioso</h4></div>
+            </div>
+        </section>
+
+        <!-- TELA: PERFIL -->
+        <section id="screen-profile" class="page-section">
+            <div class="profile-box">
+                <div class="card profile-header-card">
+                    <div class="profile-avatar-large"><i class="fa-solid fa-user"></i></div>
+                    <h2 id="profile-user-name">Jogador</h2>
+                    <p>Aventureiro Nível 3</p>
+                </div>
+                <div class="card setting-item"><i class="fa-solid fa-key"></i><div><strong>Conta & Segurança</strong><p>Alterar senha</p></div></div>
+                <div class="card setting-item"><i class="fa-solid fa-bell"></i><div><strong>Notificações</strong><p>Alertas diários</p></div></div>
+                <button class="btn btn-danger btn-block" onclick="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Sair da Conta</button>
+            </div>
+        </section>
+
+        <!-- TELA: CRIAR HÁBITO -->
+        <section id="screen-create-habit" class="page-section">
+            <div class="form-card card">
+                <h2>Criar Novo Hábito</h2>
+                <form id="create-habit-form">
+                    <div class="form-group"><label>Título do Hábito</label><input type="text" id="habit-title" required></div>
+                    <div class="form-group"><label>Descrição / Meta</label><input type="text" id="habit-desc"></div>
+                    <div class="form-group">
+                        <label>Símbolo</label>
+                        <div class="symbol-selector">
+                            <button type="button" class="symbol-btn active" data-symbol="💧">💧</button>
+                            <button type="button" class="symbol-btn" data-symbol="❤️">❤️</button>
+                            <button type="button" class="symbol-btn" data-symbol="📚">📚</button>
+                            <button type="button" class="symbol-btn" data-symbol="🧘">🧘</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="navigateTo('screen-home')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Salvar Hábito</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <!-- TELA: BATALHA (CARD GAME) -->
+        <section id="screen-battle" class="page-section">
+            <div class="battle-arena">
+                <div class="character-zone enemy-zone" id="enemy-character">
+                    <h3>Cavaleiro Corrompido</h3>
+                    <div class="hp-container">
+                        <div class="hp-bar-bg"><div class="hp-bar-fill enemy-hp-fill" id="enemy-hp-bar" style="width: 100%;"></div></div>
+                        <span class="hp-text" id="enemy-hp-text">150 / 150 HP</span>
+                    </div>
+                    <div class="character-avatar"><i class="fa-solid fa-helmet-safety"></i></div>
+                    <div class="enemy-intent" id="enemy-intent-box"><i class="fa-solid fa-crosshairs"></i> Vai Atacar (20 Dano)</div>
+                </div>
+
+                <div class="battle-center-panel">
+                    <div class="battle-energy-box">⚡ Energia: <span id="current-energy">3</span> / 3</div>
+                    <button class="btn btn-end-turn" onclick="endTurn()">Terminar Turno <i class="fa-solid fa-forward-step"></i></button>
+                </div>
+
+                <div class="character-zone player-zone" id="player-character">
+                    <div class="character-avatar"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div class="hp-container">
+                        <div class="hp-bar-bg"><div class="hp-bar-fill player-hp-fill" id="player-hp-bar" style="width: 100%;"></div></div>
+                        <span class="hp-text" id="player-hp-text">100 / 100 HP</span>
+                    </div>
+                    <div class="shield-box" id="player-shield-box" style="display: none;"><i class="fa-solid fa-shield"></i> Escudo: <span id="player-shield">0</span></div>
+                    <h3 id="battle-user-name">Você (Jogador)</h3>
+                </div>
+
+                <div class="cards-hand" id="cards-hand">
+                    <div class="battle-card playable" onclick="playCard('ataque')">
+                        <div class="card-cost">1⚡</div><i class="fa-solid fa-khanda card-art"></i><h4>Golpe Rápido</h4><p>Causa 20 de dano</p>
+                    </div>
+                    <div class="battle-card playable" onclick="playCard('defesa')">
+                        <div class="card-cost">1⚡</div><i class="fa-solid fa-shield-halved card-art"></i><h4>Bloqueio</h4><p>Ganha 15 de escudo</p>
+                    </div>
+                    <div class="battle-card playable magic" onclick="playCard('magia')">
+                        <div class="card-cost">2⚡</div><i class="fa-solid fa-fire-flame-curved card-art"></i><h4>Bola de Fogo</h4><p>Causa 45 de dano</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TELA: INVENTÁRIO -->
+        <section id="screen-inventory" class="page-section">
+            <div class="section-header"><h2>Suas Habilidades</h2></div>
+            <div class="inventory-grid">
+                <div class="inventory-card"><i class="fa-solid fa-bolt skill-icon"></i><h4>Golpe Rápido</h4></div>
+                <div class="inventory-card"><i class="fa-solid fa-shield-halved skill-icon"></i><h4>Escudo Defensivo</h4></div>
+                <div class="inventory-card"><i class="fa-solid fa-fire-flame-curved skill-icon"></i><h4>Bola de Fogo</h4></div>
+                <div class="inventory-card locked"><i class="fa-solid fa-lock"></i><span>Bloqueado</span></div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
