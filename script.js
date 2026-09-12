@@ -1,9 +1,9 @@
 // ESTADO DO JOGO
 const appState = {
     isLoggedIn: false,
-    userName: "Luiz",
+    userName: "",
     userAvatar: "🐸",
-    password: "123",
+    password: "",
     points: 0,
     divisionXP: 0,
     notificationsEnabled: false,
@@ -11,6 +11,24 @@ const appState = {
     habits: [
         { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: false, pointsClaimed: false },
         { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, pointsClaimed: false }
+    ],
+    deck: [
+        { id: 1, name: 'Golpe', icon: 'fa-khanda', color: '#e74c3c', unlocked: true },
+        { id: 2, name: 'Escudo', icon: 'fa-shield-halved', color: '#3498db', unlocked: true },
+        { id: 3, name: 'Boss Killer', icon: 'fa-skull', color: '#8e44ad', unlocked: true },
+        { id: 4, name: 'Bola de Fogo', icon: 'fa-fire', color: '#e67e22', unlocked: true },
+    
+        { id: 5, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 6, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 7, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 8, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 9, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 10, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 11, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 12, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 13, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 14, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
+        { id: 15, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false }
     ]
 };
 
@@ -20,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateEnergyAndStats();
     renderRanking();
     updateUIUserProfile();
+    renderDeck();
 });
 
 function initEvents() {
@@ -153,22 +172,43 @@ function renderHabits() {
 
     appState.habits.forEach(habit => {
         const card = document.createElement('div');
-        card.className = 'habit-card';
+        card.className = `habit-card ${habit.done ? 'completed' : ''}`;
+        
         card.innerHTML = `
-            <div class="habit-top">
-                <div class="habit-info">
-                    <span class="habit-icon">${habit.symbol}</span>
-                    <div>
+            <div class="habit-main">
+                <div class="habit-left">
+                    <div class="habit-icon-wrapper">
+                        <span class="habit-icon">${habit.symbol}</span>
+                    </div>
+                    <div class="habit-details">
                         <h4>${habit.title}</h4>
-                        <p style="font-size: 11px; color: var(--text-muted);">${habit.desc}</p>
+                        <p class="habit-desc">${habit.desc}</p>
+                        
+                        <div class="habit-rewards">
+                            <span class="reward-energy"><i class="fa-solid fa-bolt"></i> +2 Energia</span>
+                            <span class="reward-points"><i class="fa-solid fa-star"></i> +8 pts</span>
+                        </div>
+                        
+                        <div class="habit-week">
+                            <span class="day checked">S</span>
+                            <span class="day checked">T</span>
+                            <span class="day checked">Q</span>
+                            <span class="day checked">Q</span>
+                            <span class="day checked">S</span>
+                            <span class="day checked">S</span>
+                            <span class="day">D</span>
+                        </div>
                     </div>
                 </div>
-                <div class="habit-actions">
-                    <button class="btn-icon" onclick="openEditModal(${habit.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn-icon delete" onclick="deleteHabit(${habit.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                
+                <div class="habit-right">
                     <button class="btn-toggle-habit ${habit.done ? 'done' : ''}" onclick="toggleHabit(${habit.id})">
-                        ${habit.done ? '<i class="fa-solid fa-check"></i> <span>Concluído</span>' : '<span>Concluir</span>'}
+                        ${habit.done ? '<i class="fa-solid fa-check"></i> Concluído' : 'Concluir'}
                     </button>
+                    <div class="habit-actions-bottom">
+                        <button class="btn-icon" onclick="openEditModal(${habit.id})" title="Editar"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn-icon delete" onclick="deleteHabit(${habit.id})" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
             </div>
         `;
@@ -337,6 +377,25 @@ function renderRanking() {
             <span class="ranking-xp-badge">${op.xp} XP</span>
         `;
         rankingList.appendChild(item);
+    });
+}
+
+function renderDeck() {
+    const container = document.getElementById('deck-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    appState.deck.forEach(card => {
+        const el = document.createElement('div');
+        el.className = `deck-item ${card.unlocked ? '' : 'locked'}`;
+
+        el.innerHTML = `
+            <div class="deck-card-visual" style="border-color: ${card.unlocked ? card.color : '#64748b'}">
+                <i class="fa-solid ${card.icon}" style="color: ${card.unlocked ? card.color : '#cbd5e1'}; font-size: ${card.unlocked ? '40px' : '28px'}; text-shadow: 0 0 10px ${card.unlocked ? card.color : 'transparent'};"></i>
+            </div>
+            <span class="deck-card-name">${card.name}</span>
+        `;
+        container.appendChild(el);
     });
 }
 

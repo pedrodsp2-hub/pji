@@ -46,6 +46,7 @@
                 <button class="nav-btn active" data-screen="screen-home" onclick="navigateTo('screen-home')"><i class="fa-solid fa-house"></i> Hábitos</button>
                 <button class="nav-btn" data-screen="screen-ranking" onclick="navigateTo('screen-ranking')"><i class="fa-solid fa-trophy"></i> Ranking</button>
                 <button class="nav-btn" data-screen="screen-battle" onclick="navigateTo('screen-battle')"><i class="fa-solid fa-gamepad"></i> Batalha</button>
+                <button class="nav-btn" data-screen="screen-deck" onclick="navigateTo('screen-deck')"><i class="fa-solid fa-layer-group"></i> Baralho</button>
                 <button class="nav-btn" onclick="openTutorial()"><i class="fa-solid fa-circle-question"></i> Como Jogar</button>
             </nav>
             <div class="header-user">
@@ -182,6 +183,20 @@
             </div>
         </section>
 
+        <!-- TELA: BARALHO (COLEÇÃO) -->
+        <section id="screen-deck" class="page-section">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="section-header" style="margin-bottom: 24px;">
+                    <h2>Sua Coleção de Cartas</h2>
+                    <p style="font-size: 13px; color: var(--text-muted);">Visualize suas cartas liberadas e o que ainda está por vir!</p>
+                </div>
+                
+                <div class="deck-grid" id="deck-container">
+                    <!-- As cartas serão geradas via Javascript aqui -->
+                </div>
+            </div>
+        </section>
+
         <!-- TELA: PERFIL & CONFIGURAÇÕES -->
         <section id="screen-profile" class="page-section">
             <div class="profile-box card" style="max-width: 500px; margin: 0 auto;">
@@ -314,6 +329,7 @@
                 <p><strong>1. Cumpra seus Hábitos:</strong> Cada hábito concluído gera pontos e recarrega sua ⚡ <strong>Energia Diária</strong>.</p>
                 <p><strong>2. Cartas de Batalha:</strong> A energia acumulada dos seus hábitos é usada na arena para jogar cartas de ataque, defesa e magia contra os monstros!</p>
                 <p><strong>3. Ranking e Divisão:</strong> Concluir hábitos concede <strong>+20 XP de Divisão</strong>. Vencer a batalha diária concede <strong>+100 XP bônus</strong>! Suba no ranking da Divisão Obsidiana.</p>
+                <p><strong>4. Baralho:</strong> Veja na sua coleção as cartas que você já tem liberadas e os mistérios que estão por vir!</p>
             </div>
             <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="closeTutorial()">Entendi, vamos jogar!</button>
         </div>
