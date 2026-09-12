@@ -51,7 +51,7 @@
             <div class="header-user">
                 <button class="btn btn-primary btn-sm" onclick="navigateTo('screen-create-habit')"><i class="fa-solid fa-plus"></i> Novo Hábito</button>
                 <div class="user-profile" onclick="navigateTo('screen-profile')">
-                    <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                    <div class="avatar header-avatar" id="header-avatar-box">👤</div>
                     <span class="user-name" id="header-user-name">Jogador</span>
                 </div>
             </div>
@@ -63,59 +63,79 @@
 
         <!-- TELA: HÁBITOS -->
         <section id="screen-home" class="page-section active">
+            <!-- CARDS DE RESUMO (TOPO) -->
             <div class="summary-grid">
                 <div class="card summary-card">
                     <div class="summary-icon streak"><i class="fa-solid fa-fire"></i></div>
-                    <div class="summary-info"><span class="card-subtitle">Sequência</span><h3>8 Dias</h3></div>
+                    <div class="summary-info">
+                        <span class="card-subtitle">Sequência</span>
+                        <h3>8 Dias</h3>
+                        <span style="color: var(--primary); font-size: 11px; font-weight: bold;">⬆ +1 hoje</span>
+                    </div>
                 </div>
                 <div class="card summary-card">
                     <div class="summary-icon points"><i class="fa-solid fa-star"></i></div>
-                    <div class="summary-info"><span class="card-subtitle">Pontuação Geral</span><h3 id="user-points-display">2.750 pts</h3></div>
+                    <div class="summary-info">
+                        <span class="card-subtitle">Pontuação Geral</span>
+                        <h3 id="user-points-display">2.750 pts</h3>
+                        <span style="color: var(--primary); font-size: 11px; font-weight: bold;">⬆ +250 esta semana</span>
+                    </div>
                 </div>
-                <div class="card summary-card">
-                    <div class="card-header-flex"><span class="card-subtitle">Energia Diária p/ Batalhas</span><span id="energy-text" class="card-value">0%</span></div>
-                    <div class="progress-bar-bg"><div id="energy-bar" class="progress-bar-fill energy-fill" style="width: 0%;"></div></div>
+                <div class="card summary-card" style="align-items: center;">
+                    <div class="summary-icon" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8;"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="summary-info" style="flex: 1;">
+                        <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                            <span class="card-subtitle">Energia para Batalhas</span>
+                            <span style="font-size: 10px; color: var(--text-muted);">Próxima recompensa <span style="color: #facc15;">⚡ +10</span></span>
+                        </div>
+                        <h3 id="energy-text" style="font-size: 24px; margin-top: 2px;">0%</h3>
+                        <div class="progress-bar-bg" style="margin-top: 8px; height: 8px;">
+                            <div id="energy-bar" class="progress-bar-fill energy-fill" style="width: 0%; border-radius: 8px;"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="section-header">
-                <h2>Seus Hábitos Diários</h2>
+            <!-- CABEÇALHO DA SEÇÃO DE HÁBITOS -->
+            <div class="section-header" style="margin-top: 32px; justify-content: flex-start; gap: 12px;">
+                <div style="background: var(--primary); width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; color: white;">
+                    <i class="fa-solid fa-apple-whole"></i>
+                </div>
+                <div>
+                    <h2 style="margin: 0; font-size: 20px;">Seus Hábitos Diários</h2>
+                    <p style="font-size: 13px; color: var(--text-muted); margin: 2px 0 0 0;">Complete seus hábitos para ganhar energia, pontos e manter sua sequência!</p>
+                </div>
             </div>
 
             <div class="habits-grid" id="habits-container">
-                <!-- Renderizado via Javascript -->
+                <!-- Renderizado via JS -->
             </div>
         </section>
 
-        <!-- TELA: RANKING & DIVISÃO -->
+        <!-- TELA: RANKING ESTILIZADO -->
         <section id="screen-ranking" class="page-section">
             <div class="ranking-container">
                 <div class="league-card">
                     <div>
                         <span class="card-subtitle" style="color: #94a3b8;">Sua Divisão Atual</span>
-                        <h2 id="league-name" style="color: #f1c40f;">Liga Bronze 🛡️</h2>
+                        <h2 id="league-name" style="color: #f1c40f;">Divisão Obsidiana 🛡️</h2>
                         <p style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">XP da Divisão: <strong id="division-xp-text">0 / 300 XP</strong></p>
                     </div>
-                    <div class="league-badge" id="league-icon">🛡️</div>
+                    <div class="league-badge" id="league-icon">💎</div>
                 </div>
 
-                <div class="card">
+                <!-- TOP 3 PODIUM -->
+                <div class="podium-container" id="podium-container">
+                    <!-- Gerado via Javascript -->
+                </div>
+
+                <div class="card ranking-card">
                     <h3>🏆 Classificação da Semana</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Conclua hábitos (+20 XP) e vença batalhas diárias (+100 XP) para subir no ranking!</p>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Conclua hábitos (+20 XP) e vença batalhas (+100 XP) para subir!</p>
                     
-                    <table class="ranking-table">
-                        <thead>
-                            <tr>
-                                <th>Posição</th>
-                                <th>Jogador</th>
-                                <th>Divisão</th>
-                                <th>XP</th>
-                            </tr>
-                        </thead>
-                        <tbody id="ranking-tbody">
-                            <!-- Preenchido via Javascript -->
-                        </tbody>
-                    </table>
+                    <div class="ranking-list" id="ranking-list">
+                        <!-- Preenchido via JS -->
+                    </div>
                 </div>
             </div>
         </section>
@@ -139,7 +159,7 @@
                 </div>
 
                 <div class="character-zone player-zone" id="player-character">
-                    <div class="character-avatar"><i class="fa-solid fa-user-ninja"></i></div>
+                    <div class="character-avatar" id="battle-user-avatar">👤</div>
                     <div class="hp-container">
                         <div class="hp-bar-bg"><div class="hp-bar-fill player-hp-fill" id="player-hp-bar" style="width: 100%;"></div></div>
                         <span class="hp-text" id="player-hp-text">100 / 100 HP</span>
@@ -164,14 +184,47 @@
 
         <!-- TELA: PERFIL & CONFIGURAÇÕES -->
         <section id="screen-profile" class="page-section">
-            <div class="profile-box card" style="max-width: 480px; margin: 0 auto;">
-                <div style="text-align: center; margin-bottom: 20px;">
-                    <div class="avatar" style="width: 70px; height: 70px; font-size: 32px; margin: 0 auto 10px;"><i class="fa-solid fa-user"></i></div>
+            <div class="profile-box card" style="max-width: 500px; margin: 0 auto;">
+                <div class="profile-header-view">
+                    <div class="avatar profile-avatar-lg" id="profile-avatar-display">👤</div>
                     <h2 id="profile-user-name">Jogador</h2>
                     <p style="color: var(--text-muted); font-size: 13px;">Aventureiro do HabitQuest</p>
                 </div>
 
-                <div class="form-group" style="border-top: 1px solid var(--border); padding-top: 16px;">
+                <form id="edit-profile-form" style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 16px;">
+                    <h3><i class="fa-solid fa-user-pen"></i> Editar Perfil</h3>
+                    
+                    <div class="form-group" style="margin-top: 12px;">
+                        <label>Alterar Nome de Usuário</label>
+                        <input type="text" id="profile-name-input" required placeholder="Digite o novo nome">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Escolher Foto / Avatar</label>
+                        <div class="avatar-preset-picker">
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🐱')">🐱</button>
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🦊')">🦊</button>
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🦁')">🦁</button>
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🐸')">🐸</button>
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🥷')">🥷</button>
+                            <button type="button" class="avatar-option" onclick="selectPresetAvatar('🤖')">🤖</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ou insira o Link (URL) de uma imagem</label>
+                        <input type="url" id="profile-avatar-url" placeholder="https://exemplo.com/sua-foto.jpg">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Ou faça upload do seu computador</label>
+                        <input type="file" id="profile-avatar-file" accept="image/*" style="font-size: 12px;">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block"><i class="fa-solid fa-floppy-disk"></i> Salvar Alterações do Perfil</button>
+                </form>
+
+                <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
                     <button class="btn btn-secondary btn-block" onclick="openPasswordModal()"><i class="fa-solid fa-key"></i> Alterar Senha</button>
                 </div>
 
@@ -215,7 +268,7 @@
         </section>
     </main>
 
-    <!-- MODAL DE EDITAR HÁBITO -->
+    <!-- MODAIS -->
     <div class="modal-overlay" id="edit-habit-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -234,7 +287,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE ALTERAR SENHA -->
     <div class="modal-overlay" id="password-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -252,7 +304,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE TUTORIAL -->
     <div class="modal-overlay" id="tutorial-modal">
         <div class="modal-card">
             <div class="modal-header">
@@ -262,7 +313,7 @@
             <div style="font-size: 13px; display: flex; flex-direction: column; gap: 12px; color: var(--text-main);">
                 <p><strong>1. Cumpra seus Hábitos:</strong> Cada hábito concluído gera pontos e recarrega sua ⚡ <strong>Energia Diária</strong>.</p>
                 <p><strong>2. Cartas de Batalha:</strong> A energia acumulada dos seus hábitos é usada na arena para jogar cartas de ataque, defesa e magia contra os monstros!</p>
-                <p><strong>3. Ranking e Divisão:</strong> Concluir hábitos concede <strong>+20 XP de Divisão</strong>. Vencer a batalha diária concede <strong>+100 XP bônus</strong>! Suba de Bronze para Prata e Ouro.</p>
+                <p><strong>3. Ranking e Divisão:</strong> Concluir hábitos concede <strong>+20 XP de Divisão</strong>. Vencer a batalha diária concede <strong>+100 XP bônus</strong>! Suba no ranking da Divisão Obsidiana.</p>
             </div>
             <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="closeTutorial()">Entendi, vamos jogar!</button>
         </div>

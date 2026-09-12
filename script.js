@@ -1,15 +1,16 @@
 // ESTADO DO JOGO
 const appState = {
     isLoggedIn: false,
-    userName: "Jogador",
+    userName: "Luiz",
+    userAvatar: "🐸",
     password: "123",
-    points: 2750,
-    divisionXP: 140,
+    points: 0,
+    divisionXP: 0,
     notificationsEnabled: false,
     dailyBattleBonusClaimed: false,
     habits: [
-        { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: true, days: [true, true, true, true, true] },
-        { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, days: [true, true, false, false, false] }
+        { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: false, pointsClaimed: false },
+        { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, pointsClaimed: false }
     ]
 };
 
@@ -18,10 +19,10 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHabits();
     updateEnergyAndStats();
     renderRanking();
+    updateUIUserProfile();
 });
 
 function initEvents() {
-    // FORM LOGIN
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => {
@@ -32,24 +33,37 @@ function initEvents() {
             appState.password = passInput;
             appState.isLoggedIn = true;
             
-            updateUIUserNames();
+            updateUIUserProfile();
             navigateTo('screen-home');
         });
     }
 
-    // FORM CRIAR HÁBITO
     const createHabitForm = document.getElementById('create-habit-form');
     if (createHabitForm) createHabitForm.addEventListener('submit', handleCreateHabit);
 
-    // FORM EDITAR HÁBITO
     const editHabitForm = document.getElementById('edit-habit-form');
     if (editHabitForm) editHabitForm.addEventListener('submit', handleEditHabit);
 
-    // FORM ALTERAR SENHA
+    const editProfileForm = document.getElementById('edit-profile-form');
+    if (editProfileForm) editProfileForm.addEventListener('submit', handleSaveProfile);
+
+    const avatarFileInput = document.getElementById('profile-avatar-file');
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    appState.userAvatar = evt.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
     const passwordForm = document.getElementById('password-form');
     if (passwordForm) passwordForm.addEventListener('submit', handleChangePassword);
 
-    // SELETOR DE ÍCONES
     const symbolBtns = document.querySelectorAll('.symbol-btn');
     symbolBtns.forEach(btn => {
         btn.addEventListener('click', function() {
@@ -59,13 +73,47 @@ function initEvents() {
     });
 }
 
-function updateUIUserNames() {
+function updateUIUserProfile() {
     document.getElementById('header-user-name').innerText = appState.userName;
     document.getElementById('profile-user-name').innerText = appState.userName;
+    document.getElementById('profile-name-input').value = appState.userName;
     document.getElementById('battle-user-name').innerText = `Você (${appState.userName})`;
+
+    renderAvatarElement(document.getElementById('header-avatar-box'), appState.userAvatar);
+    renderAvatarElement(document.getElementById('profile-avatar-display'), appState.userAvatar);
+    renderAvatarElement(document.getElementById('battle-user-avatar'), appState.userAvatar);
 }
 
-// NAVEGAÇÃO
+function renderAvatarElement(element, avatarValue) {
+    if (!element) return;
+    if (avatarValue.startsWith('http') || avatarValue.startsWith('data:image')) {
+        element.innerHTML = `<img src="${avatarValue}" alt="Avatar">`;
+    } else {
+        element.innerHTML = avatarValue;
+    }
+}
+
+function selectPresetAvatar(emoji) {
+    appState.userAvatar = emoji;
+    document.querySelectorAll('.avatar-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.innerText === emoji);
+    });
+    document.getElementById('profile-avatar-url').value = '';
+}
+
+function handleSaveProfile(e) {
+    e.preventDefault();
+    const newName = document.getElementById('profile-name-input').value.trim();
+    const newUrl = document.getElementById('profile-avatar-url').value.trim();
+
+    if (newName) appState.userName = newName;
+    if (newUrl) appState.userAvatar = newUrl;
+
+    updateUIUserProfile();
+    renderRanking();
+    alert("Perfil atualizado com sucesso!");
+}
+
 function navigateTo(screenId) {
     if (!appState.isLoggedIn && screenId !== 'screen-login') screenId = 'screen-login';
 
@@ -98,7 +146,6 @@ function handleLogout() {
     navigateTo('screen-login');
 }
 
-// RENDERIZAR E GERENCIAR HÁBITOS
 function renderHabits() {
     const container = document.getElementById('habits-container');
     if (!container) return;
@@ -124,56 +171,31 @@ function renderHabits() {
                     </button>
                 </div>
             </div>
-            <div class="habit-history">
-                <span>Dias:</span>
-                <div class="days-row">
-                    ${habit.days.map((checked, index) => `<span class="day ${checked ? 'checked' : ''}" onclick="toggleHabitDay(${habit.id}, ${index})"></span>`).join('')}
-                </div>
-            </div>
         `;
         container.appendChild(card);
     });
 }
 
-// PREENCHIMENTO SEQUENCIAL
 function toggleHabit(id) {
     const habit = appState.habits.find(h => h.id === id);
     if (!habit) return;
 
-    // Procura o primeiro dia não marcado (da esquerda para a direita)
-    const nextDayIndex = habit.days.indexOf(false);
-
-    if (nextDayIndex !== -1) {
-        // Preenche o próximo dia livre
-        habit.days[nextDayIndex] = true;
-        appState.divisionXP += 20;
+    if (habit.done) {
+        habit.done = false;
     } else {
-        // Se todos os 5 dias já estiverem marcados, desmarca o último
-        const lastDayIndex = habit.days.lastIndexOf(true);
-        if (lastDayIndex !== -1) {
-            habit.days[lastDayIndex] = false;
+        habit.done = true;
+        if (!habit.pointsClaimed) {
+            appState.divisionXP += 20;
+            habit.pointsClaimed = true;
         }
     }
-
-    // O hábito só é considerado 100% "done" quando todos os 5 dias forem preenchidos
-    habit.done = habit.days.every(day => day === true);
 
     renderHabits();
     updateEnergyAndStats();
 }
 
-function toggleHabitDay(id, dayIndex) {
-    const habit = appState.habits.find(h => h.id === id);
-    if (habit) {
-        habit.days[dayIndex] = !habit.days[dayIndex];
-        habit.done = habit.days.every(day => day === true);
-        renderHabits();
-        updateEnergyAndStats();
-    }
-}
-
 function deleteHabit(id) {
-    if (confirm("Tem certeza que deseja excluir este hábito?")) {
+    if (confirm("Deseja excluir este hábito?")) {
         appState.habits = appState.habits.filter(h => h.id !== id);
         renderHabits();
         updateEnergyAndStats();
@@ -188,15 +210,14 @@ function handleCreateHabit(e) {
     const symbol = activeSymbolBtn ? activeSymbolBtn.getAttribute('data-symbol') : '💧';
 
     if (title) {
-        const newHabit = {
+        appState.habits.push({
             id: Date.now(),
             title,
             desc,
             symbol,
             done: false,
-            days: [false, false, false, false, false]
-        };
-        appState.habits.push(newHabit);
+            pointsClaimed: false
+        });
         renderHabits();
         updateEnergyAndStats();
         document.getElementById('habit-title').value = '';
@@ -205,7 +226,6 @@ function handleCreateHabit(e) {
     }
 }
 
-// MODAL EDITAR HÁBITO
 function openEditModal(id) {
     const habit = appState.habits.find(h => h.id === id);
     if (habit) {
@@ -242,95 +262,85 @@ function updateEnergyAndStats() {
     document.getElementById('user-points-display').innerText = (appState.points + (completed * 50)).toLocaleString('pt-BR') + ' pts';
 }
 
-// PERFIL & NOTIFICAÇÕES & SENHA
-function openPasswordModal() {
-    document.getElementById('password-modal').classList.add('active');
-}
-
-function closePasswordModal() {
-    document.getElementById('password-modal').classList.remove('active');
-}
+function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
+function closePasswordModal() { document.getElementById('password-modal').classList.remove('active'); }
 
 function handleChangePassword(e) {
     e.preventDefault();
     const current = document.getElementById('current-pass').value;
     const newP = document.getElementById('new-pass').value;
-
-    if (current !== appState.password) {
-        alert("Senha atual incorreta!");
-        return;
-    }
+    if (current !== appState.password) { alert("Senha atual incorreta!"); return; }
     appState.password = newP;
-    alert("Senha alterada com sucesso!");
+    alert("Senha alterada!");
     closePasswordModal();
-    document.getElementById('current-pass').value = '';
-    document.getElementById('new-pass').value = '';
 }
 
-function toggleNotifications(checkbox) {
-    appState.notificationsEnabled = checkbox.checked;
-    alert(appState.notificationsEnabled ? "Notificações ativadas!" : "Notificações desativadas.");
-}
+function toggleNotifications(cb) { appState.notificationsEnabled = cb.checked; }
+function openTutorial() { document.getElementById('tutorial-modal').classList.add('active'); }
+function closeTutorial() { document.getElementById('tutorial-modal').classList.remove('active'); }
 
-// TUTORIAL
-function openTutorial() {
-    document.getElementById('tutorial-modal').classList.add('active');
-}
-function closeTutorial() {
-    document.getElementById('tutorial-modal').classList.remove('active');
-}
-
-// SISTEMA DE RANKING & DIVISÃO
 function renderRanking() {
-    const xp = appState.divisionXP;
-    let league = "Liga Bronze 🛡️";
-    let icon = "🛡️";
-    let nextThreshold = 300;
-
-    if (xp >= 300 && xp < 800) {
-        league = "Liga Prata ⚔️";
-        icon = "⚔️";
-        nextThreshold = 800;
-    } else if (xp >= 800) {
-        league = "Liga Ouro 👑";
-        icon = "👑";
-        nextThreshold = "MAX";
-    }
-
-    document.getElementById('league-name').innerText = league;
-    document.getElementById('league-icon').innerText = icon;
-    document.getElementById('division-xp-text').innerText = `${xp} / ${nextThreshold} XP`;
+    document.getElementById('league-name').innerText = "Divisão Obsidiana 🛡️";
+    document.getElementById('league-icon').innerText = "💎";
+    document.getElementById('division-xp-text').innerText = `${appState.divisionXP} XP`;
 
     const opponents = [
-        { name: "Lucas HabitMaster", xp: 450, league: "Liga Prata ⚔️" },
-        { name: appState.userName, xp: appState.divisionXP, league: league, isUser: true },
-        { name: "Mariana_Runner", xp: 120, league: "Liga Bronze 🛡️" },
-        { name: "Pedro_Focus", xp: 90, league: "Liga Bronze 🛡️" }
+        { name: "Cinthia Ribeiro", xp: 733, avatar: "🐱" },
+        { name: "Misha L", xp: 408, avatar: "🦊" },
+        { name: "Clarinha", xp: 240, avatar: "🦁" },
+        { name: appState.userName, xp: appState.divisionXP, avatar: appState.userAvatar, isUser: true },
+        { name: "Ana Cecília Soares", xp: 218, avatar: "🤖" },
+        { name: "Carla Vaz", xp: 190, avatar: "🐱" },
+        { name: "Mora Serra", xp: 150, avatar: "🥷" }
     ];
 
     opponents.sort((a, b) => b.xp - a.xp);
 
-    const tbody = document.getElementById('ranking-tbody');
-    tbody.innerHTML = '';
+    const podiumContainer = document.getElementById('podium-container');
+    podiumContainer.innerHTML = '';
+    
+    if (opponents.length >= 3) {
+        const top3 = [opponents[1], opponents[0], opponents[2]];
+        const classes = ['second', 'first', 'third'];
+        const crowns = ['🥈', '👑 🥇', '🥉'];
+
+        top3.forEach((op, idx) => {
+            const item = document.createElement('div');
+            item.className = `podium-item ${classes[idx]}`;
+            const avatarHTML = op.avatar.startsWith('http') || op.avatar.startsWith('data:image') ? `<img src="${op.avatar}">` : op.avatar;
+            item.innerHTML = `
+                <div class="podium-avatar">
+                    <span class="podium-crown">${crowns[idx]}</span>
+                    ${avatarHTML}
+                </div>
+                <span class="podium-name">${op.name}</span>
+                <span class="podium-xp">${op.xp} XP</span>
+            `;
+            podiumContainer.appendChild(item);
+        });
+    }
+
+    const rankingList = document.getElementById('ranking-list');
+    rankingList.innerHTML = '';
+
     opponents.forEach((op, idx) => {
-        const tr = document.createElement('tr');
-        if (op.isUser) tr.className = 'current-user';
-        tr.innerHTML = `
-            <td class="rank-position">#${idx + 1}</td>
-            <td>${op.name} ${op.isUser ? ' (Você)' : ''}</td>
-            <td>${op.league}</td>
-            <td><strong>${op.xp} XP</strong></td>
+        const item = document.createElement('div');
+        item.className = `ranking-item ${op.isUser ? 'current-user' : ''}`;
+        const avatarHTML = op.avatar.startsWith('http') || op.avatar.startsWith('data:image') ? `<img src="${op.avatar}">` : op.avatar;
+
+        item.innerHTML = `
+            <div class="ranking-left">
+                <span class="ranking-pos">${idx + 1}</span>
+                <div class="avatar ranking-avatar">${avatarHTML}</div>
+                <span class="ranking-name">${op.name} ${op.isUser ? ' (Você)' : ''}</span>
+            </div>
+            <span class="ranking-xp-badge">${op.xp} XP</span>
         `;
-        tbody.appendChild(tr);
+        rankingList.appendChild(item);
     });
 }
 
-// JOGO DE BATALHA
-const battle = {
-    player: { maxHp: 100, hp: 100, maxEnergy: 3, energy: 3, shield: 0 },
-    enemy: { maxHp: 150, hp: 150, nextAttack: 20 },
-    isGameOver: false
-};
+const battle = { player: { maxHp: 100, hp: 100, maxEnergy: 3, energy: 3, shield: 0 }, enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, isGameOver: false };
 
 function startNewBattle() {
     battle.player.hp = battle.player.maxHp;
@@ -350,10 +360,8 @@ function randomizeEnemyIntent() {
 function updateBattleUI() {
     document.getElementById('player-hp-bar').style.width = (battle.player.hp / battle.player.maxHp * 100) + '%';
     document.getElementById('player-hp-text').innerText = `${battle.player.hp} / ${battle.player.maxHp} HP`;
-    
     document.getElementById('enemy-hp-bar').style.width = (battle.enemy.hp / battle.enemy.maxHp * 100) + '%';
     document.getElementById('enemy-hp-text').innerText = `${battle.enemy.hp} / ${battle.enemy.maxHp} HP`;
-    
     document.getElementById('current-energy').innerText = battle.player.energy;
 
     const shieldBox = document.getElementById('player-shield-box');
@@ -365,7 +373,6 @@ function updateBattleUI() {
     }
 
     document.getElementById('enemy-intent-box').innerHTML = `<i class="fa-solid fa-crosshairs"></i> Vai Atacar (${battle.enemy.nextAttack} Dano)`;
-
     document.querySelectorAll('.battle-card').forEach(card => {
         const cost = parseInt(card.querySelector('.card-cost').innerText);
         card.classList.toggle('disabled', cost > battle.player.energy || battle.isGameOver);
