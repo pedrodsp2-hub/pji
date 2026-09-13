@@ -47,6 +47,7 @@
                 <button class="nav-btn" data-screen="screen-ranking" onclick="navigateTo('screen-ranking')"><i class="fa-solid fa-trophy"></i> Ranking</button>
                 <button class="nav-btn" data-screen="screen-battle" onclick="navigateTo('screen-battle')"><i class="fa-solid fa-gamepad"></i> Batalha</button>
                 <button class="nav-btn" data-screen="screen-deck" onclick="navigateTo('screen-deck')"><i class="fa-solid fa-layer-group"></i> Baralho</button>
+                <button class="nav-btn" data-screen="screen-history" onclick="navigateTo('screen-history')"><i class="fa-solid fa-clock-rotate-left"></i> Histórico</button>
                 <button class="nav-btn" onclick="openTutorial()"><i class="fa-solid fa-circle-question"></i> Como Jogar</button>
             </nav>
             <div class="header-user">
@@ -197,6 +198,20 @@
             </div>
         </section>
 
+        <!-- TELA: HISTÓRICO -->
+        <section id="screen-history" class="page-section">
+            <div class="card" style="max-width: 800px; margin: 0 auto;">
+                <div class="section-header" style="margin-bottom: 24px;">
+                    <h2>Histórico de Ações</h2>
+                    <p style="font-size: 13px; color: var(--text-muted);">Acompanhe tudo o que aconteceu na sua jornada e nas batalhas!</p>
+                </div>
+                
+                <div class="ranking-list" id="history-list">
+                    <!-- As ações serão geradas via Javascript aqui -->
+                </div>
+            </div>
+        </section>
+
         <!-- TELA: PERFIL & CONFIGURAÇÕES -->
         <section id="screen-profile" class="page-section">
             <div class="profile-box card" style="max-width: 500px; margin: 0 auto;">
@@ -241,6 +256,18 @@
 
                 <div style="border-top: 1px solid var(--border); padding-top: 16px; margin-top: 16px;">
                     <button class="btn btn-secondary btn-block" onclick="openPasswordModal()"><i class="fa-solid fa-key"></i> Alterar Senha</button>
+                </div>
+
+                <!-- NOVO: OPÇÃO DE MODO CLARO / FUNDO BRANCO -->
+                <div class="switch-container" style="border-top: 1px solid var(--border); padding-top: 16px;">
+                    <div>
+                        <strong>Modo Claro (Fundo Branco)</strong>
+                        <p style="font-size: 11px; color: var(--text-muted);">Ativar visual com cores claras</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme(this)">
+                        <span class="slider"></span>
+                    </label>
                 </div>
 
                 <div class="switch-container" style="border-top: 1px solid var(--border); padding-top: 16px; margin-bottom: 20px;">

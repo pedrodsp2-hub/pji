@@ -8,6 +8,7 @@ const appState = {
     divisionXP: 0,
     notificationsEnabled: false,
     dailyBattleBonusClaimed: false,
+    history: [], // NOVO: Armazena o histórico
     habits: [
         { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: false, pointsClaimed: false },
         { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, pointsClaimed: false }
@@ -53,6 +54,7 @@ function initEvents() {
             appState.isLoggedIn = true;
             
             updateUIUserProfile();
+            logHistory("Login realizado no sistema.");
             navigateTo('screen-home');
         });
     }
@@ -130,6 +132,7 @@ function handleSaveProfile(e) {
 
     updateUIUserProfile();
     renderRanking();
+    logHistory("Perfil atualizado.");
     alert("Perfil atualizado com sucesso!");
 }
 
@@ -157,6 +160,7 @@ function navigateTo(screenId) {
 
         if (screenId === 'screen-battle') startNewBattle();
         if (screenId === 'screen-ranking') renderRanking();
+        if (screenId === 'screen-history') renderHistory(); // NOVO
     }
 }
 
@@ -222,8 +226,10 @@ function toggleHabit(id) {
 
     if (habit.done) {
         habit.done = false;
+        logHistory(`Hábito desmarcado: ${habit.title}`);
     } else {
         habit.done = true;
+        logHistory(`Hábito concluído: ${habit.title}`);
         if (!habit.pointsClaimed) {
             appState.divisionXP += 20;
             habit.pointsClaimed = true;
@@ -235,8 +241,10 @@ function toggleHabit(id) {
 }
 
 function deleteHabit(id) {
+    const habit = appState.habits.find(h => h.id === id);
     if (confirm("Deseja excluir este hábito?")) {
         appState.habits = appState.habits.filter(h => h.id !== id);
+        logHistory(`Hábito excluído: ${habit.title}`);
         renderHabits();
         updateEnergyAndStats();
     }
@@ -258,6 +266,7 @@ function handleCreateHabit(e) {
             done: false,
             pointsClaimed: false
         });
+        logHistory(`Novo hábito criado: ${title}`);
         renderHabits();
         updateEnergyAndStats();
         document.getElementById('habit-title').value = '';
@@ -287,6 +296,7 @@ function handleEditHabit(e) {
     if (habit) {
         habit.title = document.getElementById('edit-habit-title').value.trim();
         habit.desc = document.getElementById('edit-habit-desc').value.trim();
+        logHistory(`Hábito editado: ${habit.title}`);
         renderHabits();
         closeEditModal();
     }
@@ -409,6 +419,7 @@ function startNewBattle() {
     battle.isGameOver = false;
     randomizeEnemyIntent();
     updateBattleUI();
+    logHistory("Nova batalha iniciada contra o Cavaleiro Corrompido!");
 }
 
 function randomizeEnemyIntent() {
@@ -441,13 +452,28 @@ function updateBattleUI() {
 function playCard(type) {
     if (battle.isGameOver) return;
     let cost = 0;
+    let actionDesc = "";
 
-    if (type === 'ataque' && battle.player.energy >= 1) { cost = 1; damageEnemy(20); }
-    else if (type === 'defesa' && battle.player.energy >= 1) { cost = 1; battle.player.shield += 15; }
-    else if (type === 'magia' && battle.player.energy >= 2) { cost = 2; damageEnemy(45); }
+    if (type === 'ataque' && battle.player.energy >= 1) { 
+        cost = 1; 
+        damageEnemy(20); 
+        actionDesc = "Jogou [Golpe Rápido] e causou 20 de dano.";
+    }
+    else if (type === 'defesa' && battle.player.energy >= 1) { 
+        cost = 1; 
+        battle.player.shield += 15; 
+        actionDesc = "Jogou [Bloqueio] e ganhou +15 de Escudo.";
+    }
+    else if (type === 'magia' && battle.player.energy >= 2) { 
+        cost = 2; 
+        damageEnemy(45); 
+        actionDesc = "Jogou [Bola de Fogo] e causou 45 de dano.";
+    }
     else return;
 
     battle.player.energy -= cost;
+    logHistory(`Batalha: ${actionDesc}`);
+    
     updateBattleUI();
     checkWinCondition();
 }
@@ -478,6 +504,9 @@ function endTurn() {
         const playerZone = document.getElementById('player-character');
         playerZone.classList.add('shake');
         setTimeout(() => playerZone.classList.remove('shake'), 300);
+        logHistory(`Batalha: Inimigo atacou causando ${dmg} de dano direto.`);
+    } else {
+        logHistory(`Batalha: Inimigo tentou atacar, mas o seu escudo absorveu o impacto.`);
     }
 
     battle.player.energy = battle.player.maxEnergy;
@@ -491,10 +520,12 @@ function checkWinCondition() {
     if (battle.enemy.hp === 0) {
         battle.isGameOver = true;
         let bonusText = "";
+        logHistory("Vitória na Batalha! O monstro foi derrotado.");
         if (!appState.dailyBattleBonusClaimed) {
             appState.divisionXP += 100;
             appState.dailyBattleBonusClaimed = true;
             bonusText = "\n🏆 Você ganhou +100 XP de Bônus Diário para o Ranking!";
+            logHistory("Ganhou +100 XP de bônus diário.");
         }
         setTimeout(() => {
             alert(`✨ VITÓRIA! ${appState.userName} derrotou o monstro!${bonusText}`);
@@ -502,9 +533,57 @@ function checkWinCondition() {
         }, 300);
     } else if (battle.player.hp === 0) {
         battle.isGameOver = true;
+        logHistory("Derrota na Batalha! O jogador foi abatido.");
         setTimeout(() => {
             alert("💀 GAME OVER! Você foi derrotado.");
             startNewBattle();
         }, 300);
+    }
+}
+
+// ==========================================
+// NOVAS FUNÇÕES (HISTÓRICO E TEMA)
+// ==========================================
+function logHistory(text) {
+    const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    appState.history.unshift({ time, text }); // Adiciona sempre no topo
+    
+    // Limita a 50 registros para não pesar a memória
+    if (appState.history.length > 50) {
+        appState.history.pop();
+    }
+    renderHistory();
+}
+
+function renderHistory() {
+    const container = document.getElementById('history-list');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (appState.history.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 20px;">Nenhuma ação registrada ainda.</p>';
+        return;
+    }
+
+    appState.history.forEach(item => {
+        const el = document.createElement('div');
+        el.className = 'ranking-item'; 
+        el.innerHTML = `
+            <div class="ranking-left">
+                <span class="ranking-pos" style="font-size: 11px; width: 45px;">${item.time}</span>
+                <span class="ranking-name" style="font-weight: normal; font-size: 13px;">${item.text}</span>
+            </div>
+        `;
+        container.appendChild(el);
+    });
+}
+
+function toggleTheme(cb) {
+    if (cb.checked) {
+        document.body.classList.add('light-theme');
+        logHistory("Configuração: Fundo Branco ativado.");
+    } else {
+        document.body.classList.remove('light-theme');
+        logHistory("Configuração: Fundo Escuro ativado.");
     }
 }

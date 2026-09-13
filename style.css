@@ -317,3 +317,28 @@ input:checked + .slider:before { transform: translateX(20px); }
     .cards-hand { gap: 6px; }
     .battle-card { width: 95px; padding: 6px; }
 }
+
+/* ==========================================
+   OPÇÃO: FUNDO BRANCO (TEMA CLARO) 
+========================================== */
+body.light-theme {
+    --bg: #f8fafc;
+    --card-bg: #ffffff;
+    --card-bg-light: #f1f5f9;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #cbd5e1;
+}
+
+body.light-theme .login-card { box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+body.light-theme .habit-icon-wrapper, 
+body.light-theme .symbol-btn { background: #e2e8f0; }
+body.light-theme .btn-toggle-habit:not(.done) { background: #f8fafc; color: #0f172a; }
+body.light-theme .battle-arena { background: #e2e8f0; color: #0f172a; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+body.light-theme .enemy-zone { background: #cbd5e1; }
+body.light-theme .player-zone { background: #bae6fd; }
+body.light-theme .battle-center-panel { background: #f8fafc; border: 1px solid #94a3b8; }
+body.light-theme .battle-card { background: #f1f5f9; border-color: #94a3b8; }
+body.light-theme .battle-card h4 { color: #d97706; }
+body.light-theme .battle-card p { color: #475569; }
+body.light-theme .form-group input { background: #f8fafc; color: #0f172a; }
