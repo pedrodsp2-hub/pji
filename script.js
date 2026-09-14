@@ -5,10 +5,11 @@ const appState = {
     userAvatar: "🐸",
     password: "",
     points: 0,
+    streak: 8,
     divisionXP: 0,
     notificationsEnabled: false,
     dailyBattleBonusClaimed: false,
-    history: [], // NOVO: Armazena o histórico
+    history: [], // Armazena o histórico
     habits: [
         { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: false, pointsClaimed: false },
         { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, pointsClaimed: false }
@@ -160,7 +161,7 @@ function navigateTo(screenId) {
 
         if (screenId === 'screen-battle') startNewBattle();
         if (screenId === 'screen-ranking') renderRanking();
-        if (screenId === 'screen-history') renderHistory(); // NOVO
+        if (screenId === 'screen-history') renderHistory();
     }
 }
 
@@ -174,7 +175,27 @@ function renderHabits() {
     if (!container) return;
     container.innerHTML = '';
 
+    // Dias da semana ordenados: Domingo (D) a Sábado (S)
+    const daysOfWeek = [
+        { label: 'D', name: 'Domingo' },
+        { label: 'S', name: 'Segunda' },
+        { label: 'T', name: 'Terça' },
+        { label: 'Q', name: 'Quarta' },
+        { label: 'Q', name: 'Quinta' },
+        { label: 'S', name: 'Sexta' },
+        { label: 'S', name: 'Sábado' }
+    ];
+    const todayIndex = new Date().getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+
     appState.habits.forEach(habit => {
+        const weekDaysHTML = daysOfWeek.map((dayObj, idx) => {
+            const isToday = idx === todayIndex;
+            // Marca se já passou na semana ou se é o dia atual e o hábito foi concluído
+            const isChecked = idx < todayIndex || (isToday && habit.done);
+            const classes = `day ${isChecked ? 'checked' : ''} ${isToday ? 'today' : ''}`;
+            return `<span class="${classes}" title="${dayObj.name}${isToday ? ' (Hoje)' : ''}">${dayObj.label}</span>`;
+        }).join('');
+
         const card = document.createElement('div');
         card.className = `habit-card ${habit.done ? 'completed' : ''}`;
         
@@ -189,18 +210,12 @@ function renderHabits() {
                         <p class="habit-desc">${habit.desc}</p>
                         
                         <div class="habit-rewards">
-                            <span class="reward-energy"><i class="fa-solid fa-bolt"></i> +2 Energia</span>
-                            <span class="reward-points"><i class="fa-solid fa-star"></i> +8 pts</span>
+                            <span class="reward-energy"><i class="fa-solid fa-bolt"></i> +1 Energia</span>
+                            <span class="reward-points"><i class="fa-solid fa-star"></i> +20 XP</span>
                         </div>
                         
                         <div class="habit-week">
-                            <span class="day checked">S</span>
-                            <span class="day checked">T</span>
-                            <span class="day checked">Q</span>
-                            <span class="day checked">Q</span>
-                            <span class="day checked">S</span>
-                            <span class="day checked">S</span>
-                            <span class="day">D</span>
+                            ${weekDaysHTML}
                         </div>
                     </div>
                 </div>
@@ -227,12 +242,23 @@ function toggleHabit(id) {
     if (habit.done) {
         habit.done = false;
         logHistory(`Hábito desmarcado: ${habit.title}`);
+        
+        // Remove energia caso desmarque e esteja acima do limite
+        if (battle.player.energy > 0) {
+            battle.player.energy -= 1; 
+        }
     } else {
         habit.done = true;
         logHistory(`Hábito concluído: ${habit.title}`);
+        
         if (!habit.pointsClaimed) {
             appState.divisionXP += 20;
             habit.pointsClaimed = true;
+        }
+        
+        // Ganha energia na hora
+        if (battle.player.energy < 3) {
+            battle.player.energy += 1;
         }
     }
 
@@ -307,9 +333,28 @@ function updateEnergyAndStats() {
     const completed = appState.habits.filter(h => h.done).length;
     const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
 
+    // 1. Atualiza a barra do dashboard
     document.getElementById('energy-bar').style.width = percentage + '%';
     document.getElementById('energy-text').innerText = percentage + '%';
     document.getElementById('user-points-display').innerText = (appState.points + (completed * 50)).toLocaleString('pt-BR') + ' pts';
+
+    const streakDisplay = document.getElementById('streak-display');
+    if (streakDisplay) {
+        streakDisplay.innerText = `${appState.streak} Dias`;
+    }
+
+    // 2. Conecta com a Batalha: Cada hábito concluído dá 1 de energia máxima (Limite de 3)
+    battle.player.maxEnergy = Math.min(3, completed);
+    
+    // 3. Impede que a energia atual fique maior que o limite permitido
+    if (battle.player.energy > battle.player.maxEnergy) {
+        battle.player.energy = battle.player.maxEnergy;
+    }
+
+    // 4. Atualiza os botões e textos dentro da arena imediatamente
+    if (typeof updateBattleUI === "function") {
+        updateBattleUI();
+    }
 }
 
 function openPasswordModal() { document.getElementById('password-modal').classList.add('active'); }
@@ -409,11 +454,11 @@ function renderDeck() {
     });
 }
 
-const battle = { player: { maxHp: 100, hp: 100, maxEnergy: 3, energy: 3, shield: 0 }, enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, isGameOver: false };
+const battle = { player: { maxHp: 100, hp: 100, maxEnergy: 0, energy: 0, shield: 0 }, enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, isGameOver: false };
 
 function startNewBattle() {
     battle.player.hp = battle.player.maxHp;
-    battle.player.energy = battle.player.maxEnergy;
+    battle.player.energy = battle.player.maxEnergy; // Inicia com a energia ganha pelos hábitos
     battle.player.shield = 0;
     battle.enemy.hp = battle.enemy.maxHp;
     battle.isGameOver = false;
@@ -509,6 +554,7 @@ function endTurn() {
         logHistory(`Batalha: Inimigo tentou atacar, mas o seu escudo absorveu o impacto.`);
     }
 
+    // A energia se restaura com base na quantidade de hábitos feitos
     battle.player.energy = battle.player.maxEnergy;
     battle.player.shield = 0;
     randomizeEnemyIntent();
