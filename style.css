@@ -14,7 +14,15 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; }
+body { 
+    background-color: var(--bg); 
+    color: var(--text-main); 
+    min-height: 100vh; 
+    display: flex; 
+    flex-direction: column; 
+    overflow-x: hidden; 
+    padding-bottom: 20px;
+}
 
 /* TELAS E ESTRUTURA */
 .screen-full { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0f172a, #1e293b); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
@@ -27,7 +35,7 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .login-header { text-align: center; margin-bottom: 24px; color: var(--primary); }
 .logo-icon { font-size: 48px; margin-bottom: 8px; }
 
-/* CABEÇALHO */
+/* CABEÇALHO DSKTOP / NAVEGAÇÃO MOBILE */
 .main-header { display: none; background-color: var(--card-bg); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; }
 .main-header.active { display: block; }
 .header-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; height: 65px; display: flex; align-items: center; justify-content: space-between; }
@@ -42,8 +50,8 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .avatar { width: 36px; height: 36px; background-color: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; overflow: hidden; object-fit: cover; }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .profile-avatar-lg { width: 90px; height: 90px; font-size: 48px; margin: 0 auto 12px; border: 3px solid var(--primary); }
-.avatar-preset-picker { display: flex; gap: 8px; margin-top: 6px; }
-.avatar-option { font-size: 22px; background: var(--border); border: 2px solid transparent; border-radius: 8px; padding: 6px; cursor: pointer; transition: 0.2s; flex: 1; }
+.avatar-preset-picker { display: flex; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.avatar-option { font-size: 22px; background: var(--border); border: 2px solid transparent; border-radius: 8px; padding: 6px; cursor: pointer; transition: 0.2s; flex: 1; min-width: 40px; text-align: center; }
 .avatar-option:hover, .avatar-option.selected { border-color: var(--primary); background: rgba(43, 158, 62, 0.3); }
 
 /* MAIN CONTAINER */
@@ -51,9 +59,9 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .card { background: var(--card-bg); border-radius: var(--radius); padding: 20px; border: 1px solid var(--border); }
 
 /* SUMMARY GRID */
-.summary-grid { display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 16px; margin-bottom: 20px; }
+.summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 20px; }
 .summary-card { display: flex; align-items: center; gap: 14px; }
-.summary-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+.summary-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
 .summary-icon.streak { background: rgba(255, 152, 0, 0.2); color: #ff9800; }
 .summary-icon.points { background: rgba(251, 192, 45, 0.2); color: #fbc02d; }
 .card-subtitle { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
@@ -66,7 +74,7 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 
 /* HÁBITOS */
 .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-.habits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; margin-top: 20px; }
+.habits-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin-top: 20px; }
 
 .habit-card { 
     background: var(--card-bg); 
@@ -89,28 +97,28 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 
 .habit-left {
     display: flex;
-    gap: 16px;
+    gap: 12px;
 }
 
 .habit-icon-wrapper {
     background: #0f172a; 
-    width: 48px; height: 48px;
+    width: 44px; height: 44px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 22px;
     flex-shrink: 0;
 }
 
 .habit-details h4 { margin-bottom: 2px; font-size: 15px; }
-.habit-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+.habit-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
 
-.habit-rewards { display: flex; gap: 14px; font-size: 11px; font-weight: bold; margin-bottom: 12px; }
+.habit-rewards { display: flex; gap: 10px; font-size: 11px; font-weight: bold; margin-bottom: 10px; flex-wrap: wrap; }
 .reward-energy { color: #facc15; }
 .reward-points { color: #f59e0b; }
 
-.habit-week { display: flex; gap: 6px; }
+.habit-week { display: flex; gap: 4px; flex-wrap: wrap; }
 .habit-week .day { 
     width: 20px; height: 20px; 
     border-radius: 50%; 
@@ -130,18 +138,20 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-end;
+    gap: 8px;
 }
 
 .btn-toggle-habit { 
     background: #0f172a; 
     color: var(--text-main); 
     border: 1px solid var(--border); 
-    padding: 6px 14px; 
+    padding: 6px 12px; 
     border-radius: 16px; 
     font-weight: 600; 
     font-size: 12px; 
     cursor: pointer; 
     transition: 0.2s; 
+    white-space: nowrap;
 }
 .btn-toggle-habit.done { 
     background: var(--primary); 
@@ -180,14 +190,14 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .ranking-item.current-user { background: rgba(43, 158, 62, 0.25); border-color: var(--primary); }
 .ranking-left { display: flex; align-items: center; gap: 12px; }
 .ranking-pos { font-weight: bold; font-size: 14px; width: 24px; color: var(--text-muted); }
-.ranking-avatar { width: 40px; height: 40px; font-size: 20px; }
-.ranking-name { font-size: 14px; font-weight: 600; }
-.ranking-xp-badge { background: #3b0764; color: #d8b4fe; border: 1px solid #7e22ce; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+.ranking-avatar { width: 40px; height: 40px; font-size: 20px; flex-shrink: 0; }
+.ranking-name { font-size: 14px; font-weight: 600; word-break: break-word; }
+.ranking-xp-badge { background: #3b0764; color: #d8b4fe; border: 1px solid #7e22ce; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; white-space: nowrap; }
 
 /* BATALHA */
-#screen-battle { height: calc(100vh - 85px); overflow: hidden; }
+#screen-battle { height: auto; min-height: calc(100vh - 100px); }
 #screen-battle.active { display: flex; flex-direction: column; justify-content: center; }
-.battle-arena { display: flex; flex-direction: column; justify-content: space-between; max-width: 800px; width: 100%; margin: 0 auto; background: #1a1a2e; border-radius: 16px; padding: 16px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); height: 100%; max-height: 580px; }
+.battle-arena { display: flex; flex-direction: column; justify-content: space-between; max-width: 800px; width: 100%; margin: 0 auto; background: #1a1a2e; border-radius: 16px; padding: 16px; color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); gap: 12px; }
 .character-zone { display: flex; flex-direction: column; align-items: center; padding: 10px; border-radius: 10px; position: relative; }
 .enemy-zone { background: #16213e; }
 .player-zone { background: #0f3460; }
@@ -204,20 +214,20 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .battle-center-panel { display: flex; justify-content: space-between; align-items: center; background: #111; padding: 8px 16px; border-radius: 10px; border: 1px solid #333; }
 .battle-energy-box { font-size: 14px; font-weight: bold; color: #f1c40f; }
 .btn-end-turn { background: #e67e22; color: white; border: none; font-weight: bold; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-.cards-hand { display: flex; justify-content: center; gap: 12px; margin-top: 6px; }
-.battle-card { background: #2c3e50; border: 2px solid #34495e; border-radius: 10px; width: 115px; padding: 10px; text-align: center; position: relative; cursor: pointer; transition: 0.2s; user-select: none; }
+.cards-hand { display: flex; justify-content: center; gap: 8px; margin-top: 6px; flex-wrap: wrap; }
+.battle-card { background: #2c3e50; border: 2px solid #34495e; border-radius: 10px; width: 105px; padding: 8px; text-align: center; position: relative; cursor: pointer; transition: 0.2s; user-select: none; }
 .battle-card.playable:hover { transform: translateY(-6px); border-color: #3498db; }
 .battle-card.disabled { opacity: 0.4; filter: grayscale(1); cursor: not-allowed; }
 .card-cost { position: absolute; top: -8px; left: -8px; background: #f1c40f; color: black; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 11px; }
-.card-art { font-size: 22px; margin: 8px 0; color: #ecf0f1; }
+.card-art { font-size: 22px; margin: 6px 0; color: #ecf0f1; }
 .battle-card h4 { font-size: 12px; margin-bottom: 2px; color: #f39c12; }
 .battle-card p { font-size: 10px; color: #bdc3c7; }
 
 /* TELA: BARALHO (COLEÇÃO) */
 .deck-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    gap: 24px 16px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 16px 12px;
     justify-items: center;
 }
 
@@ -225,13 +235,13 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     width: 100%;
 }
 
 .deck-card-visual {
-    width: 85px;
-    height: 120px;
+    width: 75px;
+    height: 105px;
     background: #0f172a;
     border: 2px solid #334155;
     border-radius: 8px;
@@ -255,7 +265,7 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 }
 
 .deck-card-name {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-main);
     text-align: center;
@@ -270,17 +280,17 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .profile-header-view { text-align: center; }
 
 /* MODAIS */
-.modal-overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; padding: 16px; }
 .modal-overlay.active { display: flex; }
-.modal-card { background: var(--card-bg); border-radius: 16px; width: 100%; max-width: 480px; padding: 24px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
+.modal-card { background: var(--card-bg); border-radius: 16px; width: 100%; max-width: 480px; padding: 20px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .btn-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-muted); }
 
 /* FORMS */
 .form-group { margin-bottom: 14px; display: flex; flex-direction: column; gap: 4px; }
 .form-group label { font-size: 12px; font-weight: 600; color: var(--text-muted); }
-.form-group input { padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; }
-.btn { padding: 8px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
+.form-group input { padding: 10px; background: #0f172a; border: 1px solid var(--border); color: white; border-radius: 8px; outline: none; font-size: 14px; }
+.btn { padding: 10px 16px; border: none; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
 .btn-primary { background-color: var(--primary); color: white; }
 .btn-primary:hover { background-color: var(--primary-hover); }
 .btn-secondary { background-color: #334155; color: white; }
@@ -292,7 +302,7 @@ body { background-color: var(--bg); color: var(--text-main); min-height: 100vh; 
 .symbol-btn.active { border-color: var(--primary); background: rgba(43, 158, 62, 0.3); }
 
 .switch-container { display: flex; justify-content: space-between; align-items: center; cursor: pointer; margin-top: 8px; }
-.switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.switch { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; }
 .switch input { opacity: 0; width: 0; height: 0; }
 .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #475569; transition: .3s; border-radius: 24px; }
 .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
@@ -301,8 +311,8 @@ input:checked + .slider:before { transform: translateX(20px); }
 
 /* Correção para o tamanho da imagem na tela de batalha */
 .character-avatar img {
-    width: 80px;
-    height: 80px;
+    width: 60px;
+    height: 60px;
     object-fit: cover;
     border-radius: 50%;
     border: 3px solid #3498db;
@@ -311,11 +321,124 @@ input:checked + .slider:before { transform: translateX(20px); }
 @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-4px); } 50% { transform: translateX(4px); } 75% { transform: translateX(-4px); } 100% { transform: translateX(0); } }
 .shake { animation: shake 0.3s ease-in-out; }
 
+/* ==========================================
+   ADAPTAÇÕES RESPONSIVAS E MOBILE (DISPOSITIVOS MÓVEIS)
+========================================== */
 @media (max-width: 768px) {
-    .header-container { flex-direction: column; height: auto; padding: 10px; gap: 8px; }
-    .summary-grid { grid-template-columns: 1fr; }
-    .cards-hand { gap: 6px; }
-    .battle-card { width: 95px; padding: 6px; }
+    body {
+        padding-bottom: 75px; /* Espaço para a barra de navegação inferior */
+    }
+
+    /* Cabeçalho fixo no topo no mobile */
+    .main-header {
+        position: sticky;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 999;
+        background-color: var(--card-bg);
+        border-bottom: 1px solid var(--border);
+    }
+
+    .header-container {
+        padding: 8px 16px;
+        height: 56px;
+    }
+
+    .brand span {
+        font-size: 18px;
+    }
+
+    .btn-sm {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    /* Transforma os links de navegação numa barra inferior nativa no telemóvel */
+    .nav-links {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: space-around;
+        padding: 6px 4px;
+        z-index: 1000;
+        box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.4);
+    }
+
+    .nav-btn {
+        flex-direction: column;
+        gap: 2px;
+        padding: 6px 4px;
+        font-size: 10px;
+        border-radius: 6px;
+        flex: 1;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .nav-btn i {
+        font-size: 16px;
+    }
+
+    /* Ajuste da grelha de hábitos */
+    .habits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .habit-card {
+        padding: 14px;
+    }
+
+    .habit-main {
+        flex-direction: row;
+        align-items: flex-start;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Batalha responsiva no mobile */
+    .battle-arena {
+        padding: 12px;
+        max-height: none;
+    }
+
+    .cards-hand {
+        gap: 6px;
+    }
+
+    .battle-card {
+        width: 30%;
+        min-width: 90px;
+        padding: 6px 4px;
+    }
+
+    .battle-card h4 {
+        font-size: 11px;
+    }
+
+    .battle-card p {
+        font-size: 9px;
+    }
+
+    .card-art {
+        font-size: 18px;
+        margin: 4px 0;
+    }
+
+    .battle-center-panel {
+        padding: 6px 12px;
+    }
+
+    /* Modais responsivos */
+    .modal-card {
+        padding: 16px;
+    }
 }
 
 /* ==========================================
