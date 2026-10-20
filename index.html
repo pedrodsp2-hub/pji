@@ -121,7 +121,7 @@
                     <div>
                         <span class="card-subtitle" style="color: #94a3b8;">Sua Divisão Atual</span>
                         <h2 id="league-name" style="color: #f1c40f;">Divisão Obsidiana 🛡️</h2>
-                        <p style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">XP da Divisão: <strong id="division-xp-text">0 / 300 XP</strong></p>
+                        <p style="font-size: 13px; color: #cbd5e1; margin-top: 4px;">XP da Divisão: <strong id="division-xp-text">0 XP</strong></p>
                     </div>
                     <div class="league-badge" id="league-icon">💎</div>
                 </div>
@@ -133,7 +133,7 @@
 
                 <div class="card ranking-card">
                     <h3>🏆 Classificação da Semana</h3>
-                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Conclua hábitos (+20 XP) e vença batalhas (+100 XP) para subir!</p>
+                    <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Vença batalhas para ganhar XP e subir no ranking!</p>
                     
                     <div class="ranking-list" id="ranking-list">
                         <!-- Preenchido via JS -->
@@ -157,6 +157,11 @@
 
                 <div class="battle-center-panel">
                     <div class="battle-energy-box">⚡ Energia: <span id="current-energy">3</span> / 3</div>
+                    <!-- CONTADORES DE BARALHO E DESCARTE -->
+                    <div class="deck-counts" style="font-size: 12px; color: var(--text-muted); display: flex; gap: 10px;">
+                        <span>📚 Baralho: <strong id="draw-count">0</strong></span>
+                        <span>🗑️ Descarte: <strong id="discard-count">0</strong></span>
+                    </div>
                     <button class="btn btn-end-turn" onclick="endTurn()">Terminar Turno <i class="fa-solid fa-forward-step"></i></button>
                 </div>
 
@@ -171,15 +176,7 @@
                 </div>
 
                 <div class="cards-hand" id="cards-hand">
-                    <div class="battle-card playable" onclick="playCard('ataque')">
-                        <div class="card-cost">1⚡</div><i class="fa-solid fa-khanda card-art"></i><h4>Golpe Rápido</h4><p>Causa 20 dano</p>
-                    </div>
-                    <div class="battle-card playable" onclick="playCard('defesa')">
-                        <div class="card-cost">1⚡</div><i class="fa-solid fa-shield-halved card-art"></i><h4>Bloqueio</h4><p>+15 Escudo</p>
-                    </div>
-                    <div class="battle-card playable magic" onclick="playCard('magia')">
-                        <div class="card-cost">2⚡</div><i class="fa-solid fa-fire-flame-curved card-art"></i><h4>Bola de Fogo</h4><p>Causa 45 dano</p>
-                    </div>
+                    <!-- Gerado dinamicamente via JS -->
                 </div>
             </div>
         </section>
@@ -258,7 +255,6 @@
                     <button class="btn btn-secondary btn-block" onclick="openPasswordModal()"><i class="fa-solid fa-key"></i> Alterar Senha</button>
                 </div>
 
-                <!-- NOVO: OPÇÃO DE MODO CLARO / FUNDO BRANCO -->
                 <div class="switch-container" style="border-top: 1px solid var(--border); padding-top: 16px;">
                     <div>
                         <strong>Modo Claro (Fundo Branco)</strong>
@@ -353,10 +349,9 @@
                 <button class="btn-close" onclick="closeTutorial()">&times;</button>
             </div>
             <div style="font-size: 13px; display: flex; flex-direction: column; gap: 12px; color: var(--text-main);">
-                <p><strong>1. Cumpra seus Hábitos:</strong> Cada hábito concluído gera pontos e recarrega sua ⚡ <strong>Energia Diária</strong>.</p>
-                <p><strong>2. Cartas de Batalha:</strong> A energia acumulada dos seus hábitos é usada na arena para jogar cartas de ataque, defesa e magia contra os monstros!</p>
-                <p><strong>3. Ranking e Divisão:</strong> Concluir hábitos concede <strong>+20 XP de Divisão</strong>. Vencer a batalha diária concede <strong>+100 XP bônus</strong>! Suba no ranking da Divisão Obsidiana.</p>
-                <p><strong>4. Baralho:</strong> Veja na sua coleção as cartas que você já tem liberadas e os mistérios que estão por vir!</p>
+                <p><strong>1. Cumpra seus Hábitos:</strong> Cada hábito concluído recarrega sua ⚡ <strong>Energia Diária</strong>.</p>
+                <p><strong>2. Cartas de Batalha:</strong> Puxa 5 cartas por turno (4 Ataques, 4 Defesas, 2 Bolas de Fogo). As cartas usadas vão para o descarte e o baralho é reembaralhado automaticamente!</p>
+                <p><strong>3. Ranking e Divisão:</strong> Vença batalhas para ganhar <strong>+50 XP</strong> e subir no ranking da Divisão Obsidiana.</p>
             </div>
             <button class="btn btn-primary btn-block" style="margin-top: 20px;" onclick="closeTutorial()">Entendi, vamos jogar!</button>
         </div>

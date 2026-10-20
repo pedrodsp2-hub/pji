@@ -9,7 +9,7 @@ const appState = {
     divisionXP: 0,
     notificationsEnabled: false,
     dailyBattleBonusClaimed: false,
-    history: [], // Armazena o histórico
+    history: [],
     habits: [
         { id: 1, title: 'Beber água', desc: '2 Litros por dia', symbol: '💧', done: false, pointsClaimed: false },
         { id: 2, title: 'Correr 2km', desc: 'Exercício matinal', symbol: '🏃', done: false, pointsClaimed: false }
@@ -19,7 +19,6 @@ const appState = {
         { id: 2, name: 'Escudo', icon: 'fa-shield-halved', color: '#3498db', unlocked: true },
         { id: 3, name: 'Boss Killer', icon: 'fa-skull', color: '#8e44ad', unlocked: true },
         { id: 4, name: 'Bola de Fogo', icon: 'fa-fire', color: '#e67e22', unlocked: true },
-    
         { id: 5, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
         { id: 6, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
         { id: 7, name: '???', icon: 'fa-lock', color: '#94a3b8', unlocked: false },
@@ -175,7 +174,6 @@ function renderHabits() {
     if (!container) return;
     container.innerHTML = '';
 
-    // Dias da semana ordenados: Domingo (D) a Sábado (S)
     const daysOfWeek = [
         { label: 'D', name: 'Domingo' },
         { label: 'S', name: 'Segunda' },
@@ -185,12 +183,11 @@ function renderHabits() {
         { label: 'S', name: 'Sexta' },
         { label: 'S', name: 'Sábado' }
     ];
-    const todayIndex = new Date().getDay(); // 0 = Domingo, 1 = Segunda, ..., 6 = Sábado
+    const todayIndex = new Date().getDay();
 
     appState.habits.forEach(habit => {
         const weekDaysHTML = daysOfWeek.map((dayObj, idx) => {
             const isToday = idx === todayIndex;
-            // Marca se já passou na semana ou se é o dia atual e o hábito foi concluído
             const isChecked = idx < todayIndex || (isToday && habit.done);
             const classes = `day ${isChecked ? 'checked' : ''} ${isToday ? 'today' : ''}`;
             return `<span class="${classes}" title="${dayObj.name}${isToday ? ' (Hoje)' : ''}">${dayObj.label}</span>`;
@@ -211,7 +208,7 @@ function renderHabits() {
                         
                         <div class="habit-rewards">
                             <span class="reward-energy"><i class="fa-solid fa-bolt"></i> +1 Energia</span>
-                            <span class="reward-points"><i class="fa-solid fa-star"></i> +20 XP</span>
+                            <span class="reward-points"><i class="fa-solid fa-star"></i> +20 XP (Geral)</span>
                         </div>
                         
                         <div class="habit-week">
@@ -243,20 +240,13 @@ function toggleHabit(id) {
         habit.done = false;
         logHistory(`Hábito desmarcado: ${habit.title}`);
         
-        // Remove energia caso desmarque e esteja acima do limite
         if (battle.player.energy > 0) {
             battle.player.energy -= 1; 
         }
     } else {
         habit.done = true;
         logHistory(`Hábito concluído: ${habit.title}`);
-        
-        if (!habit.pointsClaimed) {
-            appState.divisionXP += 20;
-            habit.pointsClaimed = true;
-        }
-        
-        // Ganha energia na hora
+
         if (battle.player.energy < 3) {
             battle.player.energy += 1;
         }
@@ -333,7 +323,6 @@ function updateEnergyAndStats() {
     const completed = appState.habits.filter(h => h.done).length;
     const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
 
-    // 1. Atualiza a barra do dashboard
     document.getElementById('energy-bar').style.width = percentage + '%';
     document.getElementById('energy-text').innerText = percentage + '%';
     document.getElementById('user-points-display').innerText = (appState.points + (completed * 50)).toLocaleString('pt-BR') + ' pts';
@@ -343,15 +332,12 @@ function updateEnergyAndStats() {
         streakDisplay.innerText = `${appState.streak} Dias`;
     }
 
-    // 2. Conecta com a Batalha: Cada hábito concluído dá 1 de energia máxima (Limite de 3)
     battle.player.maxEnergy = Math.min(3, completed);
     
-    // 3. Impede que a energia atual fique maior que o limite permitido
     if (battle.player.energy > battle.player.maxEnergy) {
         battle.player.energy = battle.player.maxEnergy;
     }
 
-    // 4. Atualiza os botões e textos dentro da arena imediatamente
     if (typeof updateBattleUI === "function") {
         updateBattleUI();
     }
@@ -454,17 +440,70 @@ function renderDeck() {
     });
 }
 
-const battle = { player: { maxHp: 100, hp: 100, maxEnergy: 0, energy: 0, shield: 0 }, enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, isGameOver: false };
+// ==========================================================
+// SISTEMA DE BARALHO COM COMPRA, DESCARTE E PROPORÇÃO 4-4-2
+// ==========================================================
+const battle = { 
+    player: { maxHp: 100, hp: 100, maxEnergy: 0, energy: 0, shield: 0 }, 
+    enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, 
+    isGameOver: false,
+    hand: [],          // Cartas na mão
+    drawPile: [],      // Baralho de compras
+    discardPile: []    // Pilha de descarte
+};
+
+// Proporção solicitada: 4 Ataques, 4 Defesas, 2 Bolas de Fogo
+const baseBattleDeck = [
+    { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
+    { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
+    { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
+    { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
+    
+    { type: 'defesa', name: 'Bloqueio', cost: 1, icon: 'fa-shield-halved', desc: '+15 Escudo' },
+    { type: 'defesa', name: 'Bloqueio', cost: 1, icon: 'fa-shield-halved', desc: '+15 Escudo' },
+    { type: 'defesa', name: 'Bloqueio', cost: 1, icon: 'fa-shield-halved', desc: '+15 Escudo' },
+    { type: 'defesa', name: 'Bloqueio', cost: 1, icon: 'fa-shield-halved', desc: '+15 Escudo' },
+    
+    { type: 'magia', name: 'Bola de Fogo', cost: 2, icon: 'fa-fire-flame-curved', desc: 'Causa 45 dano' },
+    { type: 'magia', name: 'Bola de Fogo', cost: 2, icon: 'fa-fire-flame-curved', desc: 'Causa 45 dano' }
+];
 
 function startNewBattle() {
     battle.player.hp = battle.player.maxHp;
-    battle.player.energy = battle.player.maxEnergy; // Inicia com a energia ganha pelos hábitos
+    battle.player.energy = battle.player.maxEnergy;
     battle.player.shield = 0;
     battle.enemy.hp = battle.enemy.maxHp;
     battle.isGameOver = false;
+
+    battle.drawPile = shuffleArray([...baseBattleDeck]);
+    battle.discardPile = [];
+    battle.hand = [];
+
+    drawCards(5);
     randomizeEnemyIntent();
     updateBattleUI();
-    logHistory("Nova batalha iniciada contra o Cavaleiro Corrompido!");
+    logHistory("Nova batalha iniciada com baralho de cartas!");
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function drawCards(amount) {
+    for (let i = 0; i < amount; i++) {
+        if (battle.drawPile.length === 0) {
+            if (battle.discardPile.length === 0) break;
+            battle.drawPile = shuffleArray([...battle.discardPile]);
+            battle.discardPile = [];
+            logHistory("O baralho de compras acabou! O descarte foi reembaralhado.");
+        }
+        const card = battle.drawPile.pop();
+        battle.hand.push(card);
+    }
 }
 
 function randomizeEnemyIntent() {
@@ -479,6 +518,10 @@ function updateBattleUI() {
     document.getElementById('enemy-hp-text').innerText = `${battle.enemy.hp} / ${battle.enemy.maxHp} HP`;
     document.getElementById('current-energy').innerText = battle.player.energy;
 
+    // Atualiza contadores visuais
+    document.getElementById('draw-count').innerText = battle.drawPile.length;
+    document.getElementById('discard-count').innerText = battle.discardPile.length;
+
     const shieldBox = document.getElementById('player-shield-box');
     if (battle.player.shield > 0) {
         shieldBox.style.display = 'block';
@@ -488,35 +531,53 @@ function updateBattleUI() {
     }
 
     document.getElementById('enemy-intent-box').innerHTML = `<i class="fa-solid fa-crosshairs"></i> Vai Atacar (${battle.enemy.nextAttack} Dano)`;
-    document.querySelectorAll('.battle-card').forEach(card => {
-        const cost = parseInt(card.querySelector('.card-cost').innerText);
-        card.classList.toggle('disabled', cost > battle.player.energy || battle.isGameOver);
-    });
+
+    const cardsHandContainer = document.getElementById('cards-hand');
+    if (cardsHandContainer) {
+        cardsHandContainer.innerHTML = '';
+        battle.hand.forEach((card, index) => {
+            const cardEl = document.createElement('div');
+            const isPlayable = card.cost <= battle.player.energy && !battle.isGameOver;
+            cardEl.className = `battle-card ${isPlayable ? 'playable' : 'disabled'}`;
+            cardEl.setAttribute('onclick', `playCard(${index})`);
+            
+            cardEl.innerHTML = `
+                <div class="card-cost">${card.cost}⚡</div>
+                <i class="fa-solid ${card.icon} card-art"></i>
+                <h4>${card.name}</h4>
+                <p>${card.desc}</p>
+            `;
+            cardsHandContainer.appendChild(cardEl);
+        });
+    }
 }
 
-function playCard(type) {
+function playCard(index) {
     if (battle.isGameOver) return;
-    let cost = 0;
+    const card = battle.hand[index];
+    if (!card || card.cost > battle.player.energy) return;
+
     let actionDesc = "";
 
-    if (type === 'ataque' && battle.player.energy >= 1) { 
-        cost = 1; 
+    if (card.type === 'ataque') { 
         damageEnemy(20); 
-        actionDesc = "Jogou [Golpe Rápido] e causou 20 de dano.";
+        actionDesc = `Jogou [${card.name}] e causou 20 de dano.`;
     }
-    else if (type === 'defesa' && battle.player.energy >= 1) { 
-        cost = 1; 
+    else if (card.type === 'defesa') { 
         battle.player.shield += 15; 
-        actionDesc = "Jogou [Bloqueio] e ganhou +15 de Escudo.";
+        actionDesc = `Jogou [${card.name}] e ganhou +15 de Escudo.`;
     }
-    else if (type === 'magia' && battle.player.energy >= 2) { 
-        cost = 2; 
+    else if (card.type === 'magia') { 
         damageEnemy(45); 
-        actionDesc = "Jogou [Bola de Fogo] e causou 45 de dano.";
+        actionDesc = `Jogou [${card.name}] e causou 45 de dano.`;
     }
-    else return;
 
-    battle.player.energy -= cost;
+    battle.player.energy -= card.cost;
+    
+    // Remove da mão e envia para o descarte
+    battle.hand.splice(index, 1);
+    battle.discardPile.push(card);
+
     logHistory(`Batalha: ${actionDesc}`);
     
     updateBattleUI();
@@ -554,7 +615,14 @@ function endTurn() {
         logHistory(`Batalha: Inimigo tentou atacar, mas o seu escudo absorveu o impacto.`);
     }
 
-    // A energia se restaura com base na quantidade de hábitos feitos
+    // Descarta o resto da mão ao terminar o turno
+    while (battle.hand.length > 0) {
+        battle.discardPile.push(battle.hand.pop());
+    }
+
+    // Compra 5 novas cartas
+    drawCards(5);
+
     battle.player.energy = battle.player.maxEnergy;
     battle.player.shield = 0;
     randomizeEnemyIntent();
@@ -567,12 +635,11 @@ function checkWinCondition() {
         battle.isGameOver = true;
         let bonusText = "";
         logHistory("Vitória na Batalha! O monstro foi derrotado.");
-        if (!appState.dailyBattleBonusClaimed) {
-            appState.divisionXP += 100;
-            appState.dailyBattleBonusClaimed = true;
-            bonusText = "\n🏆 Você ganhou +100 XP de Bônus Diário para o Ranking!";
-            logHistory("Ganhou +100 XP de bônus diário.");
-        }
+        
+        appState.divisionXP += 50;
+        bonusText = "\n🏆 Você ganhou +50 XP de Batalha para o Ranking!";
+        logHistory("Ganhou +50 XP de batalha.");
+
         setTimeout(() => {
             alert(`✨ VITÓRIA! ${appState.userName} derrotou o monstro!${bonusText}`);
             startNewBattle();
@@ -587,14 +654,10 @@ function checkWinCondition() {
     }
 }
 
-// ==========================================
-// NOVAS FUNÇÕES (HISTÓRICO E TEMA)
-// ==========================================
 function logHistory(text) {
     const time = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    appState.history.unshift({ time, text }); // Adiciona sempre no topo
+    appState.history.unshift({ time, text }); 
     
-    // Limita a 50 registros para não pesar a memória
     if (appState.history.length > 50) {
         appState.history.pop();
     }
