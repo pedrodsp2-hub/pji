@@ -441,18 +441,18 @@ function renderDeck() {
 }
 
 // ==========================================================
-// SISTEMA DE BARALHO COM COMPRA, DESCARTE E PROPORÇÃO 4-4-2
+// SISTEMA DE BARALHO COM COMPRA, DESCARTE E CONTADORES
 // ==========================================================
 const battle = { 
     player: { maxHp: 100, hp: 100, maxEnergy: 0, energy: 0, shield: 0 }, 
     enemy: { maxHp: 150, hp: 150, nextAttack: 20 }, 
     isGameOver: false,
-    hand: [],          // Cartas na mão
-    drawPile: [],      // Baralho de compras
-    discardPile: []    // Pilha de descarte
+    hand: [],          
+    drawPile: [],      
+    discardPile: []    
 };
 
-// Proporção solicitada: 4 Ataques, 4 Defesas, 2 Bolas de Fogo
+// Proporção exata: 4 Ataques, 4 Defesas, 2 Bolas de Fogo
 const baseBattleDeck = [
     { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
     { type: 'ataque', name: 'Golpe Rápido', cost: 1, icon: 'fa-khanda', desc: 'Causa 20 dano' },
@@ -518,7 +518,7 @@ function updateBattleUI() {
     document.getElementById('enemy-hp-text').innerText = `${battle.enemy.hp} / ${battle.enemy.maxHp} HP`;
     document.getElementById('current-energy').innerText = battle.player.energy;
 
-    // Atualiza contadores visuais
+    // Atualiza os contadores visuais de baralho e descarte
     document.getElementById('draw-count').innerText = battle.drawPile.length;
     document.getElementById('discard-count').innerText = battle.discardPile.length;
 
@@ -574,7 +574,7 @@ function playCard(index) {
 
     battle.player.energy -= card.cost;
     
-    // Remove da mão e envia para o descarte
+    // Remove da mão e envia para a pilha de descarte
     battle.hand.splice(index, 1);
     battle.discardPile.push(card);
 
@@ -615,7 +615,7 @@ function endTurn() {
         logHistory(`Batalha: Inimigo tentou atacar, mas o seu escudo absorveu o impacto.`);
     }
 
-    // Descarta o resto da mão ao terminar o turno
+    // Descarta todas as cartas que sobraram na mão ao terminar o turno
     while (battle.hand.length > 0) {
         battle.discardPile.push(battle.hand.pop());
     }
@@ -695,4 +695,474 @@ function toggleTheme(cb) {
         document.body.classList.remove('light-theme');
         logHistory("Configuração: Fundo Escuro ativado.");
     }
+}
+
+// ==========================================
+// HABITQUEST - INTEGRACAO COM SUPABASE
+// ==========================================
+
+let currentUser = null;
+
+// Inicialização
+document.addEventListener("DOMContentLoaded", async () => {
+    // Remove o evento antigo de login falso
+    const oldForm = document.getElementById("login-form");
+
+    if (oldForm) {
+        const newForm = oldForm.cloneNode(true);
+        oldForm.parentNode.replaceChild(newForm, oldForm);
+
+        newForm.addEventListener("submit", loginHabitQuest);
+    }
+
+    const signupButton = document.getElementById("signup-button");
+
+    if (signupButton) {
+        signupButton.addEventListener("click", cadastrarHabitQuest);
+    }
+
+    const { data: { session } } = await sb.auth.getSession();
+
+    if (session) {
+        await carregarConta(session.user);
+    } else {
+        appState.isLoggedIn = false;
+        navigateTo("screen-login");
+    }
+
+    sb.auth.onAuthStateChange(async (event, session) => {
+        if (event === "SIGNED_OUT") {
+            currentUser = null;
+            appState.isLoggedIn = false;
+            navigateTo("screen-login");
+        }
+    });
+});
+
+// LOGIN
+async function loginHabitQuest(e) {
+    e.preventDefault();
+
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-pass").value;
+
+    if (!email || !password) {
+        alert("Preencha e-mail e senha.");
+        return;
+    }
+
+    const { data, error } = await sb.auth.signInWithPassword({
+        email,
+        password
+    });
+
+    if (error) {
+        alert("Erro ao entrar: " + error.message);
+        return;
+    }
+
+    await carregarConta(data.user);
+}
+
+// CADASTRO
+async function cadastrarHabitQuest() {
+    const nome = document.getElementById("login-name").value.trim();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-pass").value;
+
+    if (!nome || !email || !password) {
+        alert("Preencha nome, e-mail e senha.");
+        return;
+    }
+
+    if (password.length < 6) {
+        alert("A senha precisa ter pelo menos 6 caracteres.");
+        return;
+    }
+
+    const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: {
+            data: { nome }
+        }
+    });
+
+    if (error) {
+        alert("Erro ao cadastrar: " + error.message);
+        return;
+    }
+
+    if (data.session) {
+        await carregarConta(data.user);
+    } else {
+        alert("Cadastro realizado! Confirme seu e-mail para entrar.");
+    }
+}
+
+// CARREGAR DADOS DA CONTA
+async function carregarConta(user) {
+    currentUser = user;
+
+    const { data: perfil, error: perfilError } = await sb
+        .from("usuario")
+        .select("*")
+        .eq("id_usuario", user.id)
+        .single();
+
+    if (perfilError) {
+        console.error(perfilError);
+        alert("Não foi possível carregar seu perfil.");
+        return;
+    }
+
+    appState.userName = perfil.nome;
+    appState.userAvatar = perfil.avatar_url || "🐸";
+    appState.points = perfil.pontos || 0;
+    appState.streak = perfil.sequencia_dias || 0;
+    appState.divisionXP = perfil.xp_divisao || 0;
+    appState.notificationsEnabled = perfil.notificacoes_ativas || false;
+    appState.isLoggedIn = true;
+
+    await carregarHabitos();
+    await carregarHistorico();
+
+    updateUIUserProfile();
+    renderHabits();
+    updateEnergyAndStats();
+    renderRanking();
+    renderDeck();
+    renderHistory();
+
+    navigateTo("screen-home");
+}
+
+// CARREGAR HÁBITOS
+async function carregarHabitos() {
+    const { data: habitos, error } = await sb
+        .from("habito")
+        .select("*")
+        .eq("id_usuario", currentUser.id)
+        .eq("ativo", true)
+        .order("id_habito");
+
+    if (error) {
+        console.error(error);
+        alert("Erro ao carregar hábitos.");
+        return;
+    }
+
+    const hoje = new Date();
+    const inicio = new Date(hoje);
+    inicio.setHours(0, 0, 0, 0);
+
+    const fim = new Date(inicio);
+    fim.setDate(fim.getDate() + 1);
+
+    const { data: logs, error: logError } = await sb
+        .from("log_conclusao")
+        .select("id_habito")
+        .gte("data_conclusao", inicio.toISOString())
+        .lt("data_conclusao", fim.toISOString());
+
+    if (logError) {
+        console.error(logError);
+        return;
+    }
+
+    const concluidos = new Set(logs.map(log => log.id_habito));
+
+    appState.habits = habitos.map(h => ({
+        id: h.id_habito,
+        title: h.titulo,
+        desc: h.descricao,
+        symbol: h.simbolo || "💧",
+        done: concluidos.has(h.id_habito),
+        pointsClaimed: false
+    }));
+}
+
+// CRIAR HÁBITO
+async function handleCreateHabit(e) {
+    e.preventDefault();
+
+    if (!currentUser) return;
+
+    const title = document.getElementById("habit-title").value.trim();
+    const desc = document.getElementById("habit-desc").value.trim() || "Sem meta definida";
+
+    const activeSymbol = document.querySelector(".symbol-btn.active");
+    const symbol = activeSymbol
+        ? activeSymbol.getAttribute("data-symbol")
+        : "💧";
+
+    if (!title) {
+        alert("Digite o nome do hábito.");
+        return;
+    }
+
+    const { error } = await sb.from("habito").insert({
+        id_usuario: currentUser.id,
+        titulo: title,
+        descricao: desc,
+        simbolo: symbol,
+        frequencia: "diaria",
+        meta: 1
+    });
+
+    if (error) {
+        alert("Erro ao salvar hábito: " + error.message);
+        return;
+    }
+
+    await registrarHistorico("Novo hábito criado: " + title);
+    await carregarHabitos();
+
+    renderHabits();
+    updateEnergyAndStats();
+
+    document.getElementById("habit-title").value = "";
+    document.getElementById("habit-desc").value = "";
+
+    navigateTo("screen-home");
+}
+
+// CONCLUIR OU DESMARCAR HÁBITO
+async function toggleHabit(id) {
+    if (!currentUser) return;
+
+    const habit = appState.habits.find(h => h.id === id);
+    if (!habit) return;
+
+    const inicio = new Date();
+    inicio.setHours(0, 0, 0, 0);
+
+    const fim = new Date(inicio);
+    fim.setDate(fim.getDate() + 1);
+
+    if (!habit.done) {
+        const { error } = await sb.from("log_conclusao").insert({
+            id_habito: id,
+            energia_ganha: 1
+        });
+
+        if (error) {
+            alert("Erro ao concluir hábito: " + error.message);
+            return;
+        }
+
+        await sb.from("usuario")
+            .update({
+                energia_acumulada: (await obterEnergia()) + 1,
+                pontos: appState.points + 20
+            })
+            .eq("id_usuario", currentUser.id);
+
+        appState.points += 20;
+
+        await registrarHistorico("Hábito concluído: " + habit.title);
+
+    } else {
+        const { error } = await sb
+            .from("log_conclusao")
+            .delete()
+            .eq("id_habito", id)
+            .gte("data_conclusao", inicio.toISOString())
+            .lt("data_conclusao", fim.toISOString());
+
+        if (error) {
+            alert("Erro ao desmarcar hábito: " + error.message);
+            return;
+        }
+
+        const energia = await obterEnergia();
+
+        await sb.from("usuario")
+            .update({
+                energia_acumulada: Math.max(0, energia - 1),
+                pontos: Math.max(0, appState.points - 20)
+            })
+            .eq("id_usuario", currentUser.id);
+
+        appState.points = Math.max(0, appState.points - 20);
+
+        await registrarHistorico("Hábito desmarcado: " + habit.title);
+    }
+
+    await carregarHabitos();
+
+    const perfil = await sb.from("usuario")
+        .select("energia_acumulada")
+        .eq("id_usuario", currentUser.id)
+        .single();
+
+    if (!perfil.error) {
+        battle.player.energy = Math.min(
+            3,
+            perfil.data.energia_acumulada
+        );
+    }
+
+    renderHabits();
+    updateEnergyAndStats();
+}
+
+// CONSULTAR ENERGIA
+async function obterEnergia() {
+    const { data, error } = await sb
+        .from("usuario")
+        .select("energia_acumulada")
+        .eq("id_usuario", currentUser.id)
+        .single();
+
+    if (error) return 0;
+    return data.energia_acumulada;
+}
+
+// EXCLUIR HÁBITO
+async function deleteHabit(id) {
+    const habit = appState.habits.find(h => h.id === id);
+    if (!habit || !confirm("Deseja excluir este hábito?")) return;
+
+    const { error } = await sb
+        .from("habito")
+        .delete()
+        .eq("id_habito", id)
+        .eq("id_usuario", currentUser.id);
+
+    if (error) {
+        alert("Erro ao excluir: " + error.message);
+        return;
+    }
+
+    await registrarHistorico("Hábito excluído: " + habit.title);
+    await carregarHabitos();
+
+    renderHabits();
+    updateEnergyAndStats();
+}
+
+// EDITAR HÁBITO
+async function handleEditHabit(e) {
+    e.preventDefault();
+
+    const id = Number(document.getElementById("edit-habit-id").value);
+    const title = document.getElementById("edit-habit-title").value.trim();
+    const desc = document.getElementById("edit-habit-desc").value.trim();
+
+    const { error } = await sb
+        .from("habito")
+        .update({
+            titulo: title,
+            descricao: desc
+        })
+        .eq("id_habito", id)
+        .eq("id_usuario", currentUser.id);
+
+    if (error) {
+        alert("Erro ao editar hábito: " + error.message);
+        return;
+    }
+
+    await registrarHistorico("Hábito editado: " + title);
+    await carregarHabitos();
+
+    renderHabits();
+    closeEditModal();
+}
+
+// ATUALIZAR PERFIL
+async function handleSaveProfile(e) {
+    e.preventDefault();
+
+    const nome = document.getElementById("profile-name-input").value.trim();
+    const avatar = document.getElementById("profile-avatar-url").value.trim()
+        || appState.userAvatar;
+
+    if (!nome) {
+        alert("Digite seu nome.");
+        return;
+    }
+
+    const { error } = await sb
+        .from("usuario")
+        .update({
+            nome,
+            avatar_url: avatar
+        })
+        .eq("id_usuario", currentUser.id);
+
+    if (error) {
+        alert("Erro ao atualizar perfil: " + error.message);
+        return;
+    }
+
+    await sb.auth.updateUser({
+        data: { nome }
+    });
+
+    appState.userName = nome;
+    appState.userAvatar = avatar;
+
+    updateUIUserProfile();
+    renderRanking();
+
+    await registrarHistorico("Perfil atualizado.");
+    alert("Perfil atualizado com sucesso!");
+}
+
+// HISTÓRICO
+async function registrarHistorico(mensagem) {
+    if (!currentUser) return;
+
+    await sb.from("historico").insert({
+        id_usuario: currentUser.id,
+        mensagem
+    });
+
+    await carregarHistorico();
+}
+
+async function carregarHistorico() {
+    const { data, error } = await sb
+        .from("historico")
+        .select("mensagem, data_registro")
+        .eq("id_usuario", currentUser.id)
+        .order("data_registro", { ascending: false })
+        .limit(50);
+
+    if (error) {
+        console.error(error);
+        appState.history = [];
+        return;
+    }
+
+    appState.history = data.map(item => ({
+        time: new Date(item.data_registro).toLocaleTimeString(
+            "pt-BR",
+            { hour: "2-digit", minute: "2-digit" }
+        ),
+        text: item.mensagem
+    }));
+}
+
+// LOGOUT REAL
+async function handleLogout() {
+    const { error } = await sb.auth.signOut();
+
+    if (error) {
+        alert("Erro ao sair: " + error.message);
+        return;
+    }
+
+    currentUser = null;
+    appState.isLoggedIn = false;
+    appState.habits = [];
+    appState.history = [];
+    appState.userName = "";
+    appState.points = 0;
+    appState.streak = 0;
+    appState.divisionXP = 0;
+
+    navigateTo("screen-login");
 }
