@@ -9,28 +9,35 @@
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
+    <!-- TELA DE LOGIN / CADASTRO -->
     <section id="screen-login" class="screen-full active">
         <div class="login-card">
             <div class="login-header">
                 <i class="fa-solid fa-shield-halved logo-icon"></i>
-                <h1>HabitQuest</h1>
-                <p>Gamifique seus hábitos e evolua diariamente</p>
+                <h1 id="auth-title">HabitQuest</h1>
+                <p id="auth-subtitle">Gamifique seus hábitos e evolua diariamente</p>
             </div>
-            <form id="login-form">
-                <div class="form-group">
+
+            <!-- Abas para alternar entre Entrar e Cadastrar -->
+            <div class="auth-tabs" style="display: flex; gap: 8px; margin-bottom: 20px;">
+                <button type="button" id="tab-login-btn" class="btn btn-secondary btn-block" style="background: var(--primary);" onclick="switchAuthMode('login')">Entrar</button>
+                <button type="button" id="tab-signup-btn" class="btn btn-secondary btn-block" onclick="switchAuthMode('signup')">Criar Conta</button>
+            </div>
+
+            <form id="auth-form">
+                <div class="form-group" id="group-name" style="display: none;">
                     <label>Seu Nome (Personagem)</label>
-                    <input type="text" id="login-name" placeholder="Como quer ser chamado?" required>
+                    <input type="text" id="auth-name" placeholder="Como quer ser chamado?">
                 </div>
                 <div class="form-group">
                     <label>E-mail</label>
-                    <input type="email" id="login-email" placeholder="exemplo@gmail.com" required>
+                    <input type="email" id="auth-email" placeholder="exemplo@gmail.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Senha</label>
-                    <input type="password" id="login-pass" placeholder="digite sua senha" required>
+                    <label>Senha (mínimo 6 caracteres)</label>
+                    <input type="password" id="auth-pass" placeholder="digite sua senha" required>
                 </div>
-                <button type="submit" class="btn btn-primary btn-block" style="margin-top: 15px;">Entrar no Dashboard <i class="fa-solid fa-arrow-right"></i></button>
+                <button type="submit" id="auth-submit-btn" class="btn btn-primary btn-block" style="margin-top: 15px;">Entrar no Dashboard <i class="fa-solid fa-arrow-right"></i></button>
             </form>
         </div>
     </section>
